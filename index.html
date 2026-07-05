@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>فرم ثبت اطلاعات</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    body {
+      font-family: Tahoma, Arial, sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #f1f8e9);
+      min-height: 100vh;
+    }
+
+    .form-card {
+      border: none;
+      border-radius: 18px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-title {
+      color: #0d6efd;
+      font-weight: 800;
+    }
+
+    .small-note {
+      font-size: 13px;
+      color: #6c757d;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="card form-card">
+          <div class="card-body p-4 p-md-5">
+            <h3 class="text-center mb-4 form-title">فرم ثبت اطلاعات</h3>
+
+            <form id="userForm" novalidate>
+              <div class="mb-3">
+                <label for="fullName" class="form-label">نام و نام خانوادگی</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="fullName"
+                  placeholder="مثلاً: علی رضایی"
+                  required
+                />
+                <div class="invalid-feedback">
+                  لطفاً نام و نام خانوادگی را وارد کنید.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="nationalCode" class="form-label">کد ملی</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nationalCode"
+                  maxlength="10"
+                  inputmode="numeric"
+                  placeholder="مثلاً: 1234567890"
+                  required
+                />
+                <div class="invalid-feedback">
+                  کد ملی باید دقیقاً ۱۰ رقم باشد.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="phone" class="form-label">شماره تماس</label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="phone"
+                  maxlength="11"
+                  inputmode="numeric"
+                  placeholder="مثلاً: 09123456789"
+                  required
+                />
+                <div class="invalid-feedback">
+                  شماره تماس باید ۱۱ رقم و با 09 شروع شود.
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="province" class="form-label">استان</label>
+                  <select class="form-select" id="province" required>
+                    <option value="">انتخاب استان</option>
+                  </select>
+                  <div class="invalid-feedback">
+                    لطفاً استان را انتخاب کنید.
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="city" class="form-label">شهر</label>
+                  <select class="form-select" id="city" required disabled>
+                    <option value="">ابتدا استان را انتخاب کنید</option>
+                  </select>
+                  <div class="invalid-feedback">
+                    لطفاً شهر را انتخاب کنید.
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100 py-2 mt-3" id="submitBtn">
+                ثبت اطلاعات
+              </button>
+
+              <p class="text-center mt-3 small-note">
+                اطلاعات پس از ثبت در دیتابیس Cloudflare D1 ذخیره می‌شود.
+              </p>
+            </form>
+
+            <div class="alert alert-success mt-3 d-none" id="successAlert">
+              اطلاعات با موفقیت ثبت شد.
+            </div>
+
+            <div class="alert alert-danger mt-3 d-none" id="errorAlert">
+              خطا در ثبت اطلاعات. لطفاً دوباره تلاش کنید.
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://iran-form-api.reza-msi89.workers.dev;
+
+    const locationData = {
+      "آذربایجان شرقی": ["تبریز", "مراغه", "مرند", "میانه", "اهر", "بناب", "شبستر"],
+      "آذربایجان غربی": ["ارومیه", "خوی", "میاندوآب", "مهاباد", "سلماس", "بوکان"],
+      "اردبیل": ["اردبیل", "پارس‌آباد", "مشگین‌شهر", "خلخال", "گرمی"],
+      "اصفهان": ["اصفهان", "کاشان", "خمینی‌شهر", "نجف‌آباد", "شاهین‌شهر", "فلاورجان"],
+      "البرز": ["کرج", "فردیس", "نظرآباد", "ساوجبلاغ", "اشتهارد"],
+      "ایلام": ["ایلام", "دهلران", "آبدانان", "دره‌شهر", "ایوان"],
+      "بوشهر": ["بوشهر", "برازجان", "گناوه", "کنگان", "دیر", "جم"],
+      "تهران": ["تهران", "ری", "شمیرانات", "اسلامشهر", "شهریار", "ورامین", "دماوند", "پردیس"],
+      "چهارمحال و بختیاری": ["شهرکرد", "بروجن", "فارسان", "لردگان", "کوهرنگ"],
+      "خراسان جنوبی": ["بیرجند", "قائن", "فردوس", "طبس", "نهبندان"],
+      "خراسان رضوی": ["مشهد", "نیشابور", "سبزوار", "تربت حیدریه", "قوچان", "کاشمر"],
+      "خراسان شمالی": ["بجنورد", "شیروان", "اسفراین", "جاجرم", "فاروج"],
+      "خوزستان": ["اهواز", "آبادان", "خرمشهر", "دزفول", "ماهشهر", "بهبهان", "شوشتر"],
+      "زنجان": ["زنجان", "ابهر", "خرمدره", "قیدار", "ماه‌نشان"],
+      "سمنان": ["سمنان", "شاهرود", "دامغان", "گرمسار", "مهدی‌شهر"],
+      "سیستان و بلوچستان": ["زاهدان", "زابل", "چابهار", "ایرانشهر", "خاش"],
+      "فارس": ["شیراز", "مرودشت", "کازرون", "جهرم", "فسا", "لار"],
+      "قزوین": ["قزوین", "البرز", "تاکستان", "آبیک", "بوئین‌زهرا"],
+      "قم": ["قم"],
+      "کردستان": ["سنندج", "سقز", "مریوان", "بانه", "قروه"],
+      "کرمان": ["کرمان", "رفسنجان", "سیرجان", "بم", "جیرفت", "زرند"],
+      "کرمانشاه": ["کرمانشاه", "اسلام‌آباد غرب", "سنقر", "هرسین", "کنگاور"],
+      "کهگیلویه و بویراحمد": ["یاسوج", "دوگنبدان", "دهدشت", "لیکک"],
+      "گلستان": ["گرگان", "گنبد کاووس", "علی‌آباد کتول", "آق‌قلا", "کردکوی"],
+      "گیلان": ["رشت", "انزلی", "لاهیجان", "لنگرود", "آستارا", "تالش"],
+      "لرستان": ["خرم‌آباد", "بروجرد", "دورود", "الیگودرز", "کوهدشت"],
+      "مازندران": ["ساری", "بابل", "آمل", "قائم‌شهر", "بهشهر", "نوشهر"],
+      "مرکزی": ["اراک", "ساوه", "خمین", "محلات", "دلیجان"],
+      "هرمزگان": ["بندرعباس", "قشم", "کیش", "میناب", "بندر لنگه"],
+      "همدان": ["همدان", "ملایر", "نهاوند", "تویسرکان", "کبودرآهنگ"],
+      "یزد": ["یزد", "میبد", "اردکان", "بافق", "مهریز"]
+    };
+
+    const form = document.getElementById("userForm");
+    const fullNameInput = document.getElementById("fullName");
+    const nationalCodeInput = document.getElementById("nationalCode");
+    const phoneInput = document.getElementById("phone");
+    const provinceSelect = document.getElementById("province");
+    const citySelect = document.getElementById("city");
+    const submitBtn = document.getElementById("submitBtn");
+    const successAlert = document.getElementById("successAlert");
+    const errorAlert = document.getElementById("errorAlert");
+
+    Object.keys(locationData).forEach(function(province) {
+      const option = document.createElement("option");
+      option.value = province;
+      option.textContent = province;
+      provinceSelect.appendChild(option);
+    });
+
+    provinceSelect.addEventListener("change", function() {
+      const selectedProvince = provinceSelect.value;
+
+      citySelect.innerHTML = "";
+
+      if (!selectedProvince) {
+        citySelect.disabled = true;
+        citySelect.innerHTML = '<option value="">ابتدا استان را انتخاب کنید</option>';
+        return;
+      }
+
+      citySelect.disabled = false;
+      citySelect.innerHTML = '<option value="">انتخاب شهر</option>';
+
+      locationData[selectedProvince].forEach(function(city) {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+    });
+
+    nationalCodeInput.addEventListener("input", function() {
+      this.value = this.value.replace(/\D/g, "");
+    });
+
+    phoneInput.addEventListener("input", function() {
+      this.value = this.value.replace(/\D/g, "");
+    });
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      successAlert.classList.add("d-none");
+      errorAlert.classList.add("d-none");
+
+      const fullName = fullNameInput.value.trim();
+      const nationalCode = nationalCodeInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const province = provinceSelect.value;
+      const city = citySelect.value;
+
+      let isValid = true;
+
+      form.classList.remove("was-validated");
+
+      if (!/^\d{10}$/.test(nationalCode)) {
+        nationalCodeInput.setCustomValidity("invalid");
+        isValid = false;
+      } else {
+        nationalCodeInput.setCustomValidity("");
+      }
+
+      if (!/^09\d{9}$/.test(phone)) {
+        phoneInput.setCustomValidity("invalid");
+        isValid = false;
+      } else {
+        phoneInput.setCustomValidity("");
+      }
+
+      if (!form.checkValidity() || !isValid) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "در حال ثبت...";
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            fullName,
+            nationalCode,
+            phone,
+            province,
+            city
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Request failed");
+        }
+
+        successAlert.classList.remove("d-none");
+        form.reset();
+        form.classList.remove("was-validated");
+
+        citySelect.disabled = true;
+        citySelect.innerHTML = '<option value="">ابتدا استان را انتخاب کنید</option>';
+
+      } catch (error) {
+        console.error(error);
+        errorAlert.classList.remove("d-none");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "ثبت اطلاعات";
+      }
+    });
+  </script>
+</body>
+</html>
