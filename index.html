@@ -1,14 +1,142 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=login.html">
-    <title>در حال انتقال...</title>
-    <script>
-        window.location.href = "login.html";
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>داشبورد</title>
+
+  <style>
+    body {
+      display: none;
+      margin: 0;
+      font-family: Tahoma, sans-serif;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .logout-btn {
+      background: #e53935;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .logout-btn:hover {
+      background: #c62828;
+    }
+
+    .card {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 20px;
+    }
+
+    .card p {
+      color: #555;
+      line-height: 1.8;
+      margin: 8px 0;
+    }
+  </style>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.replace('./login.html');
+    }
+
+    async function checkAuth() {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        window.location.replace('./login.html');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/me', {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + token
+          }
+        });
+
+        if (!response.ok) {
+          localStorage.removeItem('token');
+          window.location.replace('./login.html');
+          return;
+        }
+
+        const user = await response.json();
+
+        document.getElementById('user-name').textContent =
+          ((user.first_name || '') + ' ' + (user.last_name || '')).trim() || '-';
+
+        document.getElementById('user-username').textContent =
+          user.username || '-';
+
+        document.getElementById('user-phone').textContent =
+          user.phone || '-';
+
+        document.body.style.display = 'block';
+      } catch (error) {
+        localStorage.removeItem('token');
+        window.location.replace('./login.html');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', checkAuth);
+  </script>
 </head>
 <body>
-    <p>در حال انتقال به صفحه ورود...</p>
+  <div class="container">
+    <div class="topbar">
+      <div class="title">داشبورد کاربر</div>
+      <button class="logout-btn" onclick="logout()">خروج</button>
+    </div>
+
+    <div class="card">
+      <h2>اطلاعات کاربر</h2>
+      <p><strong>نام و نام خانوادگی:</strong> <span id="user-name">-</span></p>
+      <p><strong>نام کاربری:</strong> <span id="user-username">-</span></p>
+      <p><strong>شماره تماس:</strong> <span id="user-phone">-</span></p>
+    </div>
+
+    <div class="card">
+      <h2>خوش آمدید</h2>
+      <p>شما با موفقیت وارد حساب کاربری خود شده‌اید.</p>
+    </div>
+  </div>
 </body>
 </html>
