@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>فرم ثبت اطلاعات</title>
 
   <link
@@ -12,8 +11,29 @@
   />
 
   <style>
+    @font-face {
+      font-family: "Shabnam FD";
+      src: url("./fonts/Shabnam-FD-Regular.woff2") format("woff2"),
+           url("./fonts/Shabnam-FD-Regular.woff") format("woff");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Shabnam FD";
+      src: url("./fonts/Shabnam-FD-Bold.woff2") format("woff2"),
+           url("./fonts/Shabnam-FD-Bold.woff") format("woff");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * {
+      font-family: "Shabnam FD", Tahoma, Arial, sans-serif !important;
+    }
+
     body {
-      font-family: Tahoma, Arial, sans-serif;
       background: linear-gradient(135deg, #e3f2fd, #f1f8e9);
       min-height: 100vh;
     }
@@ -26,12 +46,7 @@
 
     .form-title {
       color: #0d6efd;
-      font-weight: 800;
-    }
-
-    .small-note {
-      font-size: 13px;
-      color: #6c757d;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -45,17 +60,33 @@
             <h3 class="text-center mb-4 form-title">فرم ثبت اطلاعات</h3>
 
             <form id="userForm" novalidate>
-              <div class="mb-3">
-                <label for="fullName" class="form-label">نام و نام خانوادگی</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="fullName"
-                  placeholder="مثلاً: علی رضایی"
-                  required
-                />
-                <div class="invalid-feedback">
-                  لطفاً نام و نام خانوادگی را وارد کنید.
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="firstName" class="form-label">نام</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="firstName"
+                    placeholder="مثلاً: علی"
+                    required
+                  />
+                  <div class="invalid-feedback">
+                    لطفاً نام را وارد کنید.
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="lastName" class="form-label">نام خانوادگی</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="lastName"
+                    placeholder="مثلاً: رضایی"
+                    required
+                  />
+                  <div class="invalid-feedback">
+                    لطفاً نام خانوادگی را وارد کنید.
+                  </div>
                 </div>
               </div>
 
@@ -116,10 +147,6 @@
               <button type="submit" class="btn btn-primary w-100 py-2 mt-3" id="submitBtn">
                 ثبت اطلاعات
               </button>
-
-              <p class="text-center mt-3 small-note">
-                اطلاعات پس از ثبت در دیتابیس Cloudflare D1 ذخیره می‌شود.
-              </p>
             </form>
 
             <div class="alert alert-success mt-3 d-none" id="successAlert">
@@ -174,7 +201,8 @@
     };
 
     const form = document.getElementById("userForm");
-    const fullNameInput = document.getElementById("fullName");
+    const firstNameInput = document.getElementById("firstName");
+    const lastNameInput = document.getElementById("lastName");
     const nationalCodeInput = document.getElementById("nationalCode");
     const phoneInput = document.getElementById("phone");
     const provinceSelect = document.getElementById("province");
@@ -226,7 +254,8 @@
       successAlert.classList.add("d-none");
       errorAlert.classList.add("d-none");
 
-      const fullName = fullNameInput.value.trim();
+      const firstName = firstNameInput.value.trim();
+      const lastName = lastNameInput.value.trim();
       const nationalCode = nationalCodeInput.value.trim();
       const phone = phoneInput.value.trim();
       const province = provinceSelect.value;
@@ -265,7 +294,8 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            fullName,
+            firstName,
+            lastName,
             nationalCode,
             phone,
             province,
