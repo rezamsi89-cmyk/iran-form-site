@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>داشبورد مدیریتی</title>
+
+  <!-- Bootstrap 5 RTL CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"
+    rel="stylesheet"
+  />
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    rel="stylesheet"
+  />
+  <!-- فایل استایل مشترک یکپارچه -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- هدر اصلی -->
+  <header class="main-header py-3">
+    <div class="container-fluid px-3 px-md-4 header-container">
+      <div class="brand-section">
+        <button class="menu-toggle-btn" id="menuToggleBtn" aria-label="منو">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="logo-placeholder">س</div>
+        <h1 class="system-title">سامانه هوشمند مدیریت</h1>
+      </div>
+
+      <div class="user-section">
+        <div class="dropdown">
+          <button class="user-profile-dropdown-btn dropdown-toggle" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>
+            <!-- نام و نام خانوادگی به صورت پویا در این بخش قرار می‌گیرد -->
+            <span class="ms-2" id="userNameDisplay">کاربر گرامی</span>
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-end custom-dropdown-menu" aria-labelledby="userMenuButton">
+            <li>
+              <a class="dropdown-item custom-dropdown-item spa-route" href="profile.html" data-page="profile">
+                <i class="bi bi-person-lines-fill"></i>
+                مشاهده پروفایل
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item custom-dropdown-item text-danger" id="logoutBtn">
+                <i class="bi bi-box-arrow-right"></i>
+                خروج از حساب
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- لایه تاریک پشت منو -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- سایدبار منوی اصلی (کشویی) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="h6 mb-0 fw-bold">منوی اصلی</h2>
+      <button class="btn btn-sm" id="sidebarCloseBtn" aria-label="بستن منو">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-link spa-route" data-page="dashboard">
+        <i class="bi bi-house-door"></i>
+        <span>داشبورد</span>
+      </a>
+
+      <a href="profile.html" class="sidebar-link spa-route" data-page="profile">
+        <i class="bi bi-person-vcard"></i>
+        <span>پروفایل کاربر</span>
+      </a>
+
+      <a href="files.html" class="sidebar-link spa-route" data-page="files">
+        <i class="bi bi-folder2-open"></i>
+        <span>مدیریت پرونده‌ها</span>
+      </a>
+
+      <a href="reports.html" class="sidebar-link spa-route" data-page="reports">
+        <i class="bi bi-bar-chart-line"></i>
+        <span>گزارش‌ها</span>
+      </a>
+
+      <a href="settings.html" class="sidebar-link spa-route" data-page="settings">
+        <i class="bi bi-gear"></i>
+        <span>تنظیمات</span>
+      </a>
+
+      <a href="#" class="sidebar-link text-danger" id="sidebarLogoutBtn">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>خروج از حساب</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- کانتینر بارگذاری صفحات داینامیک (SPA) -->
+  <main class="content-area-dynamic" id="spaContainer"></main>
+
+  <!-- جاوا اسکریپت با اتکا به Bootstrap 5 Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+    const spaContainer = document.getElementById('spaContainer');
+    const spaRoutes = document.querySelectorAll('.spa-route');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+
+    // نگاشت آدرس صفحات داخلی
+    const pages = {
+      dashboard: 'dashboard.html',
+      profile: 'profile.html',
+      files: 'files.html',
+      reports: 'reports.html',
+      settings: 'settings.html'
+    };
+
+    // بررسی ورود معتبر و لود نام و نام خانوادگی کاربر
+    function validateAuthAndLoadUser() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      const username = localStorage.getItem('username');
+      const userDataString = localStorage.getItem('user_data');
+
+      // اگر کاربر لاگین نکرده باشد، به صفحه ورود هدایت می‌شود
+      if (isLoggedIn !== 'true') {
+        window.location.replace('login.html');
+        return false;
+      }
+
+      // اولویت اول نمایش: فیلد fullName یا name داخل شیء user_data
+      if (userDataString) {
+        try {
+          const userData = JSON.parse(userDataString);
+          const fullName = userData.fullName || userData.name || userData.fullname;
+          
+          if (fullName) {
+            userNameDisplay.textContent = fullName;
+          } else if (username) {
+            userNameDisplay.textContent = username;
+          } else {
+            userNameDisplay.textContent = 'کاربر گرامی';
+          }
+        } catch (e) {
+          userNameDisplay.textContent = username || 'کاربر گرامی';
+        }
+      } else {
+        userNameDisplay.textContent = username || 'کاربر گرامی';
+      }
+      return true;
+    }
+
+    // خروج از حساب کاربری و پاکسازی اطلاعات محلی
+    function logout() {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('username');
+      localStorage.removeItem('user_data');
+      window.location.replace('login.html');
+    }
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('show');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('show');
+    }
+
+    function updateActiveLink(pageName) {
+      spaRoutes.forEach(link => {
+        if (link.classList.contains('sidebar-link')) {
+          link.classList.toggle('active', link.dataset.page === pageName);
+        }
+      });
+    }
+
+    function getCleanHtml(htmlText) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      const customRoot = doc.querySelector('#pageContent') || doc.querySelector('main');
+      return customRoot ? customRoot.innerHTML : (doc.body ? doc.body.innerHTML : htmlText);
+    }
+
+    // بارگذاری صفحات داینامیک
+    async function loadRoute(pageName, updateHistory = true) {
+      const fileUrl = pages[pageName];
+      if (!fileUrl) return;
+
+      spaContainer.innerHTML = `
+        <div class="spa-loading-wrapper">
+          <div class="spa-loading">
+            <div class="spinner-border text-success" role="status"></div>
+            <span>در حال بارگذاری اطلاعات...</span>
+          </div>
+        </div>
+      `;
+
+      try {
+        const response = await fetch(fileUrl, { cache: 'no-store' });
+        if (!response.ok) throw new Error('خطا در ارتباط با سرور');
+
+        const html = await response.text();
+        spaContainer.innerHTML = getCleanHtml(html);
+        updateActiveLink(pageName);
+
+        if (updateHistory) {
+          history.pushState({ page: pageName }, '', '#' + pageName);
+        }
+
+        closeSidebar();
+      } catch (error) {
+        console.error(error);
+        spaContainer.innerHTML = `
+          <div class="container-fluid p-4">
+            <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <div>خطا در بارگذاری محتوای صفحه. لطفاً اتصال اینترنت خود را بررسی کنید.</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // رویدادهای سایدبار کشویی
+    menuToggleBtn.addEventListener('click', openSidebar);
+    sidebarCloseBtn.addEventListener('click', closeSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+    
+    logoutBtn.addEventListener('click', logout);
+    sidebarLogoutBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      logout();
+    });
+
+    spaRoutes.forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const pageName = this.dataset.page;
+        if (pageName) {
+          loadRoute(pageName);
+        }
+      });
+    });
+
+    window.addEventListener('popstate', (e) => {
+      const pageName = e.state?.page || window.location.hash.replace('#', '') || 'dashboard';
+      if (pages[pageName]) {
+        loadRoute(pageName, false);
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const isAuthenticated = validateAuthAndLoadUser();
+      if (!isAuthenticated) return;
+
+      const currentHash = window.location.hash.replace('#', '');
+      const defaultPage = pages[currentHash] ? currentHash : 'dashboard';
+      loadRoute(defaultPage, false);
+    });
+  </script>
+</body>
+</html>
