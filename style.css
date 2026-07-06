@@ -1,0 +1,311 @@
+/* ==========================================================================
+   ۱. فونت‌ها و متغیرهای پایه (Base & Variables)
+   ========================================================================== */
+@font-face {
+  font-family: "Shabnam FD";
+  src: url("./fonts/Shabnam-FD-Regular.woff2") format("woff2"),
+       url("./fonts/Shabnam-FD-Regular.woff") format("woff");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam FD";
+  src: url("./fonts/Shabnam-FD-Bold.woff2") format("woff2"),
+       url("./fonts/Shabnam-FD-Bold.woff") format("woff");
+  font-weight: 700;
+  font-display: swap;
+}
+
+* {
+  font-family: "Shabnam FD", Tahoma, sans-serif !important;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #198754;      /* سبز موفقیت / برند */
+  --primary-hover: #146c43;
+  --secondary-color: #0d6efd;    /* آبی برند کمکی */
+  --secondary-hover: #0b5ed7;
+  --danger-color: #dc3545;       /* قرمز خطا */
+  --bg-gradient: linear-gradient(135deg, #e3f2fd, #f8f9fa, #e8f5e9);
+  --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  --border-radius-lg: 20px;
+  --border-radius-md: 12px;
+  --border-radius-sm: 8px;
+  --transition-speed: 0.25s;
+}
+
+/* رفع اسکرول‌های ناخواسته و تنظیمات پایه بدنه */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   ۲. بخش احراز هویت (Auth Pages: index, register, forget, reset)
+   ========================================================================== */
+body.auth-body {
+  background: var(--bg-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* کارت‌های والد */
+.auth-card, .login-card, .register-card, .reset-card, .forget-card {
+  width: 100%;
+  max-width: 430px;
+  border: none;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow);
+  background: #ffffff;
+  overflow: hidden;
+  transition: transform var(--transition-speed) ease;
+}
+
+/* کارت بزرگ‌تر برای صفحه ثبت‌نام به دلیل تعدد فیلدها */
+.register-card {
+  max-width: 520px;
+}
+
+/* هدر کارت‌ها */
+.top-badge {
+  background: var(--primary-color);
+  color: white;
+  text-align: center;
+  padding: 16px 20px;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.card-body {
+  padding: 30px 28px;
+}
+
+/* استایل‌های فرم، فیلدها و سلکتورها */
+.form-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+  border-radius: var(--border-radius-md);
+  padding: 12px 14px;
+  border: 1px solid #dee2e6;
+  font-size: 14px;
+  color: #212529;
+  background-color: #fff;
+  transition: border-color var(--transition-speed) ease-in-out, box-shadow var(--transition-speed) ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+  outline: 0;
+}
+
+/* رفع تداخل آیکون‌های اعتبارسنجی بوت‌استرپ در فیلدهای گروهی */
+.input-group .form-control {
+  z-index: 2;
+}
+
+/* دکمه چشم برای نمایش/پنهان‌سازی پسورد (تطبیق کامل با ساختار RTL بوت‌استرپ) */
+.password-toggle-btn, #togglePass, #toggleConfirmPass {
+  border-radius: var(--border-radius-md) 0 0 var(--border-radius-md) !important;
+  border-color: #dee2e6;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  z-index: 4;
+  border-right: none;
+  transition: all var(--transition-speed);
+}
+
+.password-toggle-btn:hover, #togglePass:hover, #toggleConfirmPass:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
+/* دکمه‌های اختصاصی */
+.btn-custom {
+  border-radius: var(--border-radius-md);
+  padding: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all var(--transition-speed) ease;
+}
+
+/* لینک‌ها و ناوبری‌های پایین کارت‌ها */
+.auth-links {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.auth-links a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: color var(--transition-speed);
+}
+
+.auth-links a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.auth-links.center-links {
+  justify-content: center;
+}
+
+/* ==========================================================================
+   ۳. بخش داشبورد و صفحه اصلی (Home Page)
+   ========================================================================== */
+body.dashboard-body {
+  background-color: #f4f6f9;
+  min-height: 100vh;
+}
+
+.dashboard-navbar {
+  background-color: #ffffff;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+  padding: 15px 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.dashboard-brand {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--primary-color);
+}
+
+.dashboard-card {
+  border: none;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  margin-bottom: 24px;
+  transition: transform var(--transition-speed);
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+}
+
+.dashboard-card .card-header {
+  background-color: transparent;
+  border-bottom: 1px solid #f1f3f5;
+  padding: 16px 20px;
+  font-weight: 700;
+  color: #343a40;
+}
+
+/* بخش نمایش خوش‌آمدگویی و اطلاعات کاربر */
+.user-welcome-badge {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: var(--primary-color);
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-logout {
+  border-radius: var(--border-radius-sm);
+  font-weight: 700;
+  padding: 8px 16px;
+}
+
+/* جداول یا لیست‌های موجود در داشبورد */
+.custom-table {
+  width: 100%;
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.custom-table th {
+  background-color: #f8f9fa;
+  font-weight: 700;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+/* ==========================================================================
+   ۴. انیمیشن‌ها، وضعیت‌ها و استایل‌های کمکی (Helper Classes)
+   ========================================================================== */
+/* کلاس غیرفعال بودن دکمه‌ها و المان‌ها */
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* انیمیشن چرخش لودینگ */
+.spinner-border-sm {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-width: 0.18em;
+  margin-left: 6px; /* ایجاد فاصله در حالت راست‌چین */
+}
+
+/* پیغام‌های خطا و موفقیت بازخورد (Feedback & Alerts) */
+.alert {
+  border-radius: var(--border-radius-md);
+  font-size: 14px;
+  padding: 12px 16px;
+  border: none;
+}
+
+.alert-danger {
+  background-color: #fde8eb;
+  color: var(--danger-color);
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  color: var(--primary-color);
+}
+
+/* انیمیشن محو شدن ملایم برای بارگذاری المان‌ها */
+.fade-in {
+  animation: fadeIn var(--transition-speed) ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* استایل‌های واکنش‌گرا (Responsive Utilities) */
+@media (max-width: 576px) {
+  .auth-card {
+    border-radius: var(--border-radius-md);
+  }
+  .card-body {
+    padding: 24px 18px;
+  }
+  .top-badge {
+    font-size: 16px;
+    padding: 12px 15px;
+  }
+}
