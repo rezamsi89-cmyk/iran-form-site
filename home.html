@@ -4,65 +4,89 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>خانه | سامانه مدیریت</title>
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <!-- اضافه شدن فایل استایل مرکزی -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- هدر -->
   <header class="main-header py-3">
     <div class="container-fluid px-3 px-md-4 header-container">
       <div class="brand-section">
-        <button class="menu-toggle-btn" id="menuToggleBtn"><i class="bi bi-list"></i></button>
+        <button class="menu-toggle-btn" id="menuToggleBtn" aria-label="منو">
+          <i class="bi bi-list"></i>
+        </button>
         <div class="logo-placeholder">س</div>
         <h1 class="system-title">سامانه هوشمند مدیریت</h1>
       </div>
+
       <div class="user-section">
         <div class="dropdown">
-          <button class="user-profile-dropdown-btn dropdown-toggle" id="userMenuButton" data-bs-toggle="dropdown">
+          <button class="user-profile-dropdown-btn dropdown-toggle" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle"></i>
             <span class="ms-2">احمد محمدی</span>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end custom-dropdown-menu">
-            <li><a class="dropdown-item custom-dropdown-item" href="profile.html" target="main-frame"><i class="bi bi-person-lines-fill"></i> مشاهده پروفایل</a></li>
+
+          <ul class="dropdown-menu dropdown-menu-end custom-dropdown-menu" aria-labelledby="userMenuButton">
+            <li>
+              <a class="dropdown-item custom-dropdown-item spa-route" href="profile.html" data-page="profile">
+                <i class="bi bi-person-lines-fill"></i>
+                مشاهده پروفایل
+              </a>
+            </li>
             <li><hr class="dropdown-divider"></li>
-            <li><button class="dropdown-item custom-dropdown-item text-danger" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> خروج از حساب</button></li>
+            <li>
+              <button class="dropdown-item custom-dropdown-item text-danger" id="logoutBtn">
+                <i class="bi bi-box-arrow-right"></i>
+                خروج از حساب
+              </button>
+            </li>
           </ul>
         </div>
       </div>
     </div>
   </header>
 
+  <!-- لایه تاریک پشت سایدبار -->
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+  <!-- سایدبار -->
   <aside class="sidebar" id="sidebar">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <h2 class="h6 mb-0 fw-bold">منوی اصلی</h2>
-      <button class="btn btn-sm" id="sidebarCloseBtn"><i class="bi bi-x-lg"></i></button>
+      <button class="btn btn-sm" id="sidebarCloseBtn" aria-label="بستن منو">
+        <i class="bi bi-x-lg"></i>
+      </button>
     </div>
 
     <nav class="sidebar-nav">
-      <a href="dashboard.html" target="main-frame" class="sidebar-link active" data-page="dashboard">
+      <a href="dashboard.html" class="sidebar-link spa-route" data-page="dashboard">
         <i class="bi bi-house-door"></i>
         <span>داشبورد</span>
       </a>
-      <a href="profile.html" target="main-frame" class="sidebar-link" data-page="profile">
+
+      <a href="profile.html" class="sidebar-link spa-route" data-page="profile">
         <i class="bi bi-person-vcard"></i>
         <span>پروفایل کاربر</span>
       </a>
-      <a href="files.html" target="main-frame" class="sidebar-link" data-page="files">
+
+      <a href="files.html" class="sidebar-link spa-route" data-page="files">
         <i class="bi bi-folder2-open"></i>
         <span>مدیریت پرونده‌ها</span>
       </a>
-      <a href="reports.html" target="main-frame" class="sidebar-link" data-page="reports">
+
+      <a href="reports.html" class="sidebar-link spa-route" data-page="reports">
         <i class="bi bi-bar-chart-line"></i>
         <span>گزارش‌ها</span>
       </a>
-      <a href="settings.html" target="main-frame" class="sidebar-link" data-page="settings">
+
+      <a href="settings.html" class="sidebar-link spa-route" data-page="settings">
         <i class="bi bi-gear"></i>
         <span>تنظیمات</span>
       </a>
+
       <a href="#" class="sidebar-link text-danger" id="sidebarLogoutBtn">
         <i class="bi bi-box-arrow-right"></i>
         <span>خروج از حساب</span>
@@ -70,51 +94,124 @@
     </nav>
   </aside>
 
-  <main class="content-area-dynamic">
-    <iframe src="dashboard.html" name="main-frame" id="mainFrame" class="dynamic-iframe"></iframe>
-  </main>
+  <!-- نگهدارنده صفحات داینامیک SPA -->
+  <main class="content-area-dynamic" id="spaContainer"></main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // عناصر DOM
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const menuToggleBtn = document.getElementById('menuToggleBtn');
     const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
-    const sidebarLinks = document.querySelectorAll('.sidebar-link');
-    const mainFrame = document.getElementById('mainFrame');
+    const spaContainer = document.getElementById('spaContainer');
+    const spaRoutes = document.querySelectorAll('.spa-route');
 
-    menuToggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); sidebarOverlay.classList.add('show'); });
-    sidebarCloseBtn.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('show'); });
-    sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('show'); });
+    // نقشه آدرس‌ها
+    const pages = {
+      dashboard: 'dashboard.html',
+      profile: 'profile.html',
+      files: 'files.html',
+      reports: 'reports.html',
+      settings: 'settings.html'
+    };
 
-    function setActiveSidebarLink(targetHref) {
-      const normalizedTarget = new URL(targetHref, window.location.href).pathname.replace(/\/$/, '');
-      sidebarLinks.forEach(link => {
-        link.classList.remove('active');
-        const linkHref = new URL(link.getAttribute('href'), window.location.href).pathname.replace(/\/$/, '');
-        if (linkHref === normalizedTarget) link.classList.add('active');
-      });
-    }
+    // باز و بسته کردن سایدبار
+    const openSidebar = () => { sidebar.classList.add('open'); sidebarOverlay.classList.add('show'); };
+    const closeSidebar = () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('show'); };
 
-    sidebarLinks.forEach(link => {
-      link.addEventListener('click', function () {
-        if (this.id === 'sidebarLogoutBtn') return;
-        sidebarLinks.forEach(item => item.classList.remove('active'));
-        this.classList.add('active');
-        sidebar.classList.remove('open');
-        sidebarOverlay.classList.remove('show');
-      });
-    });
+    menuToggleBtn.addEventListener('click', openSidebar);
+    sidebarCloseBtn.addEventListener('click', closeSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
 
-    mainFrame.addEventListener('load', () => {
-      try { setActiveSidebarLink(mainFrame.contentWindow.location.href); } catch(e) {}
-    });
-
-    function logout() { localStorage.removeItem('token'); window.location.replace('login.html'); }
+    // احراز هویت و خروج
+    const logout = () => {
+      localStorage.removeItem('token');
+      window.location.replace('login.html');
+    };
     logoutBtn.addEventListener('click', logout);
     sidebarLogoutBtn.addEventListener('click', (e) => { e.preventDefault(); logout(); });
+
+    // مدیریت لینک فعال سایدبار
+    const updateActiveLink = (pageName) => {
+      spaRoutes.forEach(link => {
+        if (link.classList.contains('sidebar-link')) {
+          link.classList.toggle('active', link.dataset.page === pageName);
+        }
+      });
+    };
+
+    // استخراج بخش اصلی فایل‌های لود شده (برای نادیده گرفتن کدهای هدر/فوتر تکراری صفحات فرعی)
+    const getCleanHtml = (htmlText) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      const customRoot = doc.querySelector('#pageContent') || doc.querySelector('main');
+      return customRoot ? customRoot.innerHTML : (doc.body ? doc.body.innerHTML : htmlText);
+    };
+
+    // هسته اصلی لودینگ SPA
+    const loadRoute = async (pageName, updateHistory = true) => {
+      const fileUrl = pages[pageName];
+      if (!fileUrl) return;
+
+      // نمایش لودینگ زیبا
+      spaContainer.innerHTML = `
+        <div class="spa-loading-wrapper">
+          <div class="spa-loading">
+            <div class="spinner-border text-success" role="status"></div>
+            <span>در حال بارگذاری اطلاعات...</span>
+          </div>
+        </div>
+      `;
+
+      try {
+        const response = await fetch(fileUrl, { cache: 'no-store' });
+        if (!response.ok) throw new Error('خطا در لود اطلاعات صفحه');
+
+        const html = await response.text();
+        spaContainer.innerHTML = getCleanHtml(html);
+        updateActiveLink(pageName);
+
+        if (updateHistory) {
+          history.pushState({ page: pageName }, '', `#${pageName}`);
+        }
+        closeSidebar();
+      } catch (err) {
+        console.error(err);
+        spaContainer.innerHTML = `
+          <div class="container-fluid p-4">
+            <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <div>خطا در برقراری ارتباط با سرور. لطفا اتصال خود را بررسی کرده و مجدداً تلاش کنید.</div>
+            </div>
+          </div>
+        `;
+      }
+    };
+
+    // رویدادهای کلیک روی تمام لینک‌های مسیریابی
+    spaRoutes.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const pageName = this.dataset.page;
+        if (pageName) loadRoute(pageName);
+      });
+    });
+
+    // شنود کلیک روی دکمه‌های Back/Forward مرورگر
+    window.addEventListener('popstate', (e) => {
+      const pageName = e.state?.page || 'dashboard';
+      loadRoute(pageName, false);
+    });
+
+    // شروع اجرای برنامه بر اساس Hash جاری صفحه
+    window.addEventListener('DOMContentLoaded', () => {
+      const currentHash = window.location.hash.replace('#', '');
+      const defaultPage = currentHash && pages[currentHash] ? currentHash : 'dashboard';
+      loadRoute(defaultPage, false);
+    });
   </script>
 </body>
 </html>
