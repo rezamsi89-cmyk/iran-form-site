@@ -4,451 +4,117 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>خانه | سامانه مدیریت</title>
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-
-  <style>
-    :root {
-      --primary: #198754;
-      --primary-dark: #146c43;
-      --primary-light: #e9f7ef;
-      --text-dark: #1f2937;
-      --text-muted: #6b7280;
-      --border-color: #e5e7eb;
-      --bg-light: #f8faf9;
-      --white: #ffffff;
-      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
-      --radius-lg: 18px;
-      --radius-md: 14px;
-      --radius-sm: 10px;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Tahoma, sans-serif;
-      background: linear-gradient(to bottom, #f8faf9, #f4f7f6);
-      color: var(--text-dark);
-      min-height: 100vh;
-    }
-
-    a {
-      text-decoration: none;
-    }
-
-    /* هدر */
-    .top-header {
-      background: var(--white);
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      box-shadow: var(--shadow-sm);
-      position: sticky;
-      top: 0;
-      z-index: 1050;
-    }
-
-    .header-inner {
-      min-height: 82px;
-    }
-
-    .system-brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .system-logo {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.4rem;
-      font-weight: bold;
-      box-shadow: 0 8px 20px rgba(25, 135, 84, 0.25);
-      flex-shrink: 0;
-    }
-
-    .system-title-wrap {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.4;
-    }
-
-    .system-title {
-      margin: 0;
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: var(--primary-dark);
-    }
-
-    .system-subtitle {
-      margin: 0;
-      font-size: 0.88rem;
-      color: var(--text-muted);
-    }
-
-    .user-panel {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .user-info-box {
-      background: #f8fafc;
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 52px;
-    }
-
-    .user-avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-      color: var(--primary-dark);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 0.95rem;
-      flex-shrink: 0;
-    }
-
-    .user-meta {
-      line-height: 1.2;
-    }
-
-    .user-fullname {
-      font-weight: 700;
-      color: var(--text-dark);
-      font-size: 0.96rem;
-      margin: 0;
-    }
-
-    .user-role {
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      margin: 0;
-    }
-
-    .btn-soft-profile {
-      background: var(--primary-light);
-      color: var(--primary-dark);
-      border: 1px solid #cdebd8;
-      border-radius: 12px;
-      padding: 10px 16px;
-      font-weight: 600;
-      transition: all 0.25s ease;
-    }
-
-    .btn-soft-profile:hover {
-      background: #dff3e8;
-      color: var(--primary-dark);
-      transform: translateY(-1px);
-    }
-
-    .btn-logout-custom {
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 10px 16px;
-      font-weight: 600;
-      transition: all 0.25s ease;
-      box-shadow: 0 8px 18px rgba(220, 53, 69, 0.15);
-    }
-
-    .btn-logout-custom:hover {
-      background: #bb2d3b;
-      color: white;
-      transform: translateY(-1px);
-    }
-
-    /* نوار منو */
-    .menu-shell {
-      margin-top: 18px;
-      margin-bottom: 28px;
-    }
-
-    .menu-card {
-      background: rgba(255, 255, 255, 0.88);
-      border: 1px solid rgba(255,255,255,0.7);
-      box-shadow: var(--shadow-md);
-      border-radius: 20px;
-      padding: 10px 14px;
-      backdrop-filter: blur(10px);
-    }
-
-    .navbar-custom {
-      padding: 0;
-    }
-
-    .navbar-toggler {
-      border: none;
-      box-shadow: none !important;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #f3f4f6;
-    }
-
-    .navbar-nav .nav-link {
-      color: var(--text-dark);
-      font-weight: 700;
-      border-radius: 12px;
-      padding: 12px 18px;
-      transition: all 0.25s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .navbar-nav .nav-link:hover,
-    .navbar-nav .nav-link:focus {
-      background: var(--primary-light);
-      color: var(--primary-dark);
-    }
-
-    .dropdown-menu {
-      border: none;
-      border-radius: 16px;
-      box-shadow: 0 14px 35px rgba(0,0,0,0.10);
-      padding: 10px;
-      min-width: 220px;
-      margin-top: 10px;
-    }
-
-    .dropdown-item {
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-weight: 600;
-      color: var(--text-dark);
-      transition: all 0.2s ease;
-    }
-
-    .dropdown-item:hover {
-      background: var(--primary-light);
-      color: var(--primary-dark);
-    }
-
-    /* محتوای نمونه */
-    .page-intro-card {
-      background: linear-gradient(135deg, #ffffff, #f7fbf8);
-      border: 1px solid rgba(25, 135, 84, 0.08);
-      border-radius: 22px;
-      box-shadow: var(--shadow-md);
-      padding: 30px;
-    }
-
-    .page-badge {
-      display: inline-block;
-      background: var(--primary-light);
-      color: var(--primary-dark);
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    .page-title {
-      font-size: 1.8rem;
-      font-weight: 800;
-      margin-bottom: 10px;
-      color: var(--text-dark);
-    }
-
-    .page-desc {
-      color: var(--text-muted);
-      line-height: 1.9;
-      margin-bottom: 0;
-    }
-
-    .section-card {
-      background: var(--white);
-      border: 1px solid rgba(0,0,0,0.05);
-      border-radius: 20px;
-      box-shadow: var(--shadow-sm);
-      padding: 24px;
-      height: 100%;
-    }
-
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-      color: var(--primary-dark);
-    }
-
-    .section-text {
-      color: var(--text-muted);
-      line-height: 1.9;
-      margin-bottom: 0;
-    }
-
-    /* واکنش‌گرایی */
-    @media (max-width: 991.98px) {
-      .header-inner {
-        padding-top: 14px;
-        padding-bottom: 14px;
-      }
-
-      .system-brand {
-        margin-bottom: 12px;
-      }
-
-      .user-panel {
-        justify-content: flex-start;
-      }
-    }
-
-    @media (max-width: 767.98px) {
-      .system-title {
-        font-size: 1rem;
-      }
-
-      .system-subtitle {
-        font-size: 0.8rem;
-      }
-
-      .user-panel {
-        width: 100%;
-        gap: 10px;
-      }
-
-      .user-info-box {
-        width: 100%;
-        justify-content: flex-start;
-      }
-
-      .btn-soft-profile,
-      .btn-logout-custom {
-        flex: 1;
-        text-align: center;
-      }
-
-      .page-intro-card {
-        padding: 22px;
-      }
-
-      .page-title {
-        font-size: 1.35rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- اضافه شدن فایل استایل مرکزی -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- هدر -->
-  <header class="top-header">
-    <div class="container">
-      <div class="row align-items-center justify-content-between header-inner">
-        
-        <!-- سمت راست: لوگو و نام سامانه -->
-        <div class="col-lg-5">
-          <div class="system-brand">
-            <div class="system-logo">ن</div>
-            <div class="system-title-wrap">
-              <h1 class="system-title">سامانه مدیریت کاربران</h1>
-              <p class="system-subtitle">پنل داخلی مدیریت و اطلاعات پایه</p>
-            </div>
-          </div>
+  <header class="main-header py-3">
+    <div class="container-fluid px-3 px-md-4 header-container">
+      <div class="brand-section">
+        <button class="menu-toggle-btn" id="menuToggleBtn"><i class="bi bi-list"></i></button>
+        <div class="logo-placeholder">س</div>
+        <h1 class="system-title">سامانه هوشمند مدیریت</h1>
+      </div>
+      <div class="user-section">
+        <div class="dropdown">
+          <button class="user-profile-dropdown-btn dropdown-toggle" id="userMenuButton" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle"></i>
+            <span class="ms-2">احمد محمدی</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end custom-dropdown-menu">
+            <li><a class="dropdown-item custom-dropdown-item" href="profile.html" target="main-frame"><i class="bi bi-person-lines-fill"></i> مشاهده پروفایل</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item custom-dropdown-item text-danger" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> خروج از حساب</button></li>
+          </ul>
         </div>
-
-        <!-- سمت چپ: نام کاربر + دکمه ها -->
-        <div class="col-lg-7">
-          <div class="user-panel">
-            <div class="user-info-box">
-              <div class="user-avatar">ا</div>
-              <div class="user-meta">
-                <p class="user-fullname mb-0">احمد محمدی</p>
-                <p class="user-role mb-0">کاربر سیستم</p>
-              </div>
-            </div>
-
-            <a href="#" class="btn btn-soft-profile">مشاهده پروفایل</a>
-            <a href="index.html" class="btn btn-logout-custom">خروج از سامانه</a>
-          </div>
-        </div>
-
       </div>
     </div>
   </header>
 
-  <!-- منوی اصلی -->
-  <div class="container menu-shell">
-    <div class="menu-card">
-      <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container-fluid px-0">
-          <button class="navbar-toggler me-auto" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-          <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav gap-lg-2 ms-auto">
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <span>📁</span>
-                  <span>اطلاعات پایه</span>
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item" href="#">
-                      لیست کاربران
-                    </a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-    </div>
-  </div>
-
-  <!-- محتوای اصلی صفحه -->
-  <main class="container pb-5">
-    <div class="page-intro-card mb-4">
-      <span class="page-badge">صفحه اصلی سامانه</span>
-      <h2 class="page-title">خوش آمدید به پنل مدیریت</h2>
-      <p class="page-desc">
-        این صفحه به عنوان خانه اصلی سامانه طراحی شده است. از طریق منوی بالای صفحه می‌توانید
-        به بخش‌های مختلف دسترسی داشته باشید. در حال حاضر، بخش اطلاعات پایه و زیرمنوی لیست کاربران
-        به صورت نمونه در ساختار منو قرار گرفته است و در مراحل بعدی می‌توانیم سایر ماژول‌ها را نیز به آن اضافه کنیم.
-      </p>
+  <aside class="sidebar" id="sidebar">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="h6 mb-0 fw-bold">منوی اصلی</h2>
+      <button class="btn btn-sm" id="sidebarCloseBtn"><i class="bi bi-x-lg"></i></button>
     </div>
 
-    <div class="row g-4">
-      <div class="col-md-6">
-        <div class="section-card">
-          <h3 class="section-title">منوی ماژول‌ها</h3>
-          <p class="section-text">
-            منوی بالای صفحه به صورت واکنش‌گرا طراحی شده و در موبایل به حالت جمع‌شونده نمایش داده می‌شود.
-            همچنین ساختار آن برای اضافه شدن زیرمنوهای بیشتر کاملاً آماده است.
-          </p>
-        </div>
-      </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" target="main-frame" class="sidebar-link active" data-page="dashboard">
+        <i class="bi bi-house-door"></i>
+        <span>داشبورد</span>
+      </a>
+      <a href="profile.html" target="main-frame" class="sidebar-link" data-page="profile">
+        <i class="bi bi-person-vcard"></i>
+        <span>پروفایل کاربر</span>
+      </a>
+      <a href="files.html" target="main-frame" class="sidebar-link" data-page="files">
+        <i class="bi bi-folder2-open"></i>
+        <span>مدیریت پرونده‌ها</span>
+      </a>
+      <a href="reports.html" target="main-frame" class="sidebar-link" data-page="reports">
+        <i class="bi bi-bar-chart-line"></i>
+        <span>گزارش‌ها</span>
+      </a>
+      <a href="settings.html" target="main-frame" class="sidebar-link" data-page="settings">
+        <i class="bi bi-gear"></i>
+        <span>تنظیمات</span>
+      </a>
+      <a href="#" class="sidebar-link text-danger" id="sidebarLogoutBtn">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>خروج از حساب</span>
+      </a>
+    </nav>
+  </aside>
 
-      <div class="col-md-6">
-        <div class="section-card">
-          <h3 class="section-title">اطلاعات کاربر</h3>
-          <p class="section-text">
-            در هدر، نام و نام خانوادگی کاربر به همراه دکمه مشاهده پروفایل و خروج از سامانه نمایش داده می‌شود.
-            این بخش را بعداً می‌توانیم به داده‌های واقعی کاربر از بک‌اند متصل کنیم.
-          </p>
-        </div>
-      </div>
-    </div>
+  <main class="content-area-dynamic">
+    <iframe src="dashboard.html" name="main-frame" id="mainFrame" class="dynamic-iframe"></iframe>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    const mainFrame = document.getElementById('mainFrame');
+
+    menuToggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); sidebarOverlay.classList.add('show'); });
+    sidebarCloseBtn.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('show'); });
+    sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('show'); });
+
+    function setActiveSidebarLink(targetHref) {
+      const normalizedTarget = new URL(targetHref, window.location.href).pathname.replace(/\/$/, '');
+      sidebarLinks.forEach(link => {
+        link.classList.remove('active');
+        const linkHref = new URL(link.getAttribute('href'), window.location.href).pathname.replace(/\/$/, '');
+        if (linkHref === normalizedTarget) link.classList.add('active');
+      });
+    }
+
+    sidebarLinks.forEach(link => {
+      link.addEventListener('click', function () {
+        if (this.id === 'sidebarLogoutBtn') return;
+        sidebarLinks.forEach(item => item.classList.remove('active'));
+        this.classList.add('active');
+        sidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('show');
+      });
+    });
+
+    mainFrame.addEventListener('load', () => {
+      try { setActiveSidebarLink(mainFrame.contentWindow.location.href); } catch(e) {}
+    });
+
+    function logout() { localStorage.removeItem('token'); window.location.replace('login.html'); }
+    logoutBtn.addEventListener('click', logout);
+    sidebarLogoutBtn.addEventListener('click', (e) => { e.preventDefault(); logout(); });
+  </script>
 </body>
 </html>
