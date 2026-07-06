@@ -302,5 +302,97 @@
       loadRoute(defaultPage, false);
     });
   </script>
+  
+    <!-- اسکریپت‌های دیگر مانند بوت‌استرپ و آیکون‌ها در اینجا قرار دارند -->
+  <script src="./js/bootstrap.bundle.min.js"></script>
+
+  <!-- ==========================================
+       شروع کدهای Ajax Single Page Router (نینجا)
+       ========================================== -->
+  <script>
+    // تابع بارگذاری محتوای صفحات داخلی به صورت پویا
+    async function loadPage(pageName) {
+      const contentArea = document.querySelector('.content-area-dynamic');
+      if (!contentArea) return;
+
+      // ۱. نمایش حالت در حال بارگذاری (Loading Spinner)
+      contentArea.innerHTML = `
+        <div class="spa-loading-wrapper">
+          <div class="spinner-border text-success" role="status">
+            <span class="visually-hidden">در حال بارگذاری...</span>
+          </div>
+        </div>
+      `;
+
+      try {
+        // ۲. ارسال درخواست Ajax به فایل HTML صفحه داخلی
+        // توجه: مطمئن شوید صفحات داخلی در پوشه درست قرار دارند (مثلاً در روت پروژه یا پوشه pages)
+        const response = await fetch(`./pages/${pageName}.html`);
+        
+        if (!response.ok) {
+          throw new Error('صفحه مورد نظر یافت نشد.');
+        }
+
+        const htmlContent = await response.text();
+        
+        // ۳. تزریق محتوا همراه با انیمیشن افکت ورود (Fade-in)
+        contentArea.innerHTML = `<div class="fade-in">${htmlContent}</div>`;
+        
+        // ۴. بستن منوی سایدبار در حالت موبایل پس از کلیک روی لینک
+        document.getElementById('sidebar')?.classList.remove('open');
+        document.getElementById('sidebarOverlay')?.classList.remove('show');
+
+        // ۵. فعال‌سازی کلاس active روی لینک کلیک شده در سایدبار
+        updateActiveSidebarLink(pageName);
+
+        // ۶. اجرای توابع مقداردهی اولیه مخصوص آن صفحه (در صورت وجود)
+        initPageScripts(pageName);
+
+      } catch (error) {
+        contentArea.innerHTML = `
+          <div class="alert alert-danger m-3 fade-in" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            خطا در بارگذاری صفحه: ${error.message}
+          </div>
+        `;
+      }
+    }
+
+    // تغییر کلاس فعال سایدبار
+    function updateActiveSidebarLink(pageName) {
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.classList.remove('active');
+        // اگر ویژگی href لینک با صفحه هماهنگ باشد (مثلاً #dashboard)
+        if (link.getAttribute('href') === `#${pageName}`) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    // لیسنر تغییر هش (Hash Change) برای مدیریت دکمه‌های جلو/عقب مرورگر
+    window.addEventListener('hashchange', () => {
+      const page = window.location.hash.replace('#', '') || 'dashboard';
+      loadPage(page);
+    });
+
+    // بارگذاری اولین صفحه در زمان ورود به home.html
+    document.addEventListener('DOMContentLoaded', () => {
+      const defaultPage = window.location.hash.replace('#', '') || 'dashboard';
+      loadPage(defaultPage);
+    });
+
+    // تابع کمکی برای راه‌اندازی جاوااسکریپت‌های اختصاصی هر صفحه پس از لود شدن HTML آن
+    function initPageScripts(pageName) {
+      if (pageName === 'dashboard') {
+        // در اینجا توابع فراخوانی اطلاعات داشبورد قرار می‌گیرد
+        console.log('داشبورد لود شد.');
+      } else if (pageName === 'profile') {
+        console.log('پروفایل لود شد.');
+      }
+    }
+  </script>
+  <!-- ==========================================
+       پایان کدهای Ajax Single Page Router
+       ========================================== -->
 </body>
 </html>
