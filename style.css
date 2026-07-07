@@ -3,16 +3,16 @@
    ========================================================================== */
 @font-face {
   font-family: "Shabnam FD";
-  src: url("./fonts/Shabnam-FD-Regular.woff2") format("woff2"),
-       url("./fonts/Shabnam-FD-Regular.woff") format("woff");
+  src: url("./fonts/Shabnam-FD.ttf") format("ttf"),
+       url("./fonts/Shabnam-FD.ttf") format("ttf");
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Shabnam FD";
-  src: url("./fonts/Shabnam-FD-Bold.woff2") format("woff2"),
-       url("./fonts/Shabnam-FD-Bold.woff") format("woff");
+  src: url("./fonts/Shabnam-Bold-FD.ttf") format("ttf"),
+       url("./fonts/Shabnam-Bold-FD.ttf") format("ttf");
   font-weight: 700;
   font-display: swap;
 }
