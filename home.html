@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سامانه فانوس 360</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="main-header py-3">
+    <div class="container-fluid px-3 px-md-4 header-container">
+      <div class="brand-section">
+        <button class="menu-toggle-btn" id="menuToggleBtn" aria-label="منو" type="button">
+          <span class="hamburger-box"><span class="hamburger-inner"></span></span>
+        </button>
+        <div class="logo-placeholder">س</div>
+        <h1 class="system-title">سامانه هوشمند مدیریت</h1>
+      </div>
+
+      <div class="user-section">
+        <div class="dropdown">
+          <button class="user-profile-dropdown-btn dropdown-toggle" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>
+            <span class="ms-2" id="userNameDisplay">کاربر گرامی</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end custom-dropdown-menu" aria-labelledby="userMenuButton">
+            <li><a class="dropdown-item custom-dropdown-item spa-route" href="#profile" data-page="profile"><i class="bi bi-person-lines-fill"></i> پروفایل</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item custom-dropdown-item text-danger" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> خروج</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="h6 mb-0 fw-bold">منوی اصلی</h2>
+      <button class="btn btn-sm" id="sidebarCloseBtn"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#dashboard" class="sidebar-link spa-route" data-page="dashboard">
+        <i class="bi bi-house-door"></i>
+        <span>داشبورد</span>
+      </a>
+
+      <a href="#files" class="sidebar-link spa-route" data-page="files">
+        <i class="bi bi-folder2-open"></i>
+        <span>مدیریت پرونده‌ها</span>
+      </a>
+
+      <a href="#reports" class="sidebar-link spa-route" data-page="reports">
+        <i class="bi bi-bar-chart-line"></i>
+        <span>گزارش‌ها</span>
+      </a>
+
+      <div class="sidebar-item-group">
+        <a href="#settingsCollapse" class="sidebar-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="settingsCollapse">
+          <i class="bi bi-gear"></i>
+          <span>تنظیمات سیستم</span>
+          <i class="bi bi-chevron-down arrow-icon"></i>
+        </a>
+        <div class="collapse" id="settingsCollapse">
+          <ul class="submenu">
+            <li>
+              <a href="#user_management" class="sidebar-link spa-route" data-page="user_management">
+                <i class="bi bi-people"></i>
+                <span>مدیریت کاربران</span>
+              </a>
+            </li>
+            <li>
+              <a href="#profile" class="sidebar-link spa-route" data-page="profile">
+                <i class="bi bi-person-badge"></i>
+                <span>پروفایل کاربری</span>
+              </a>
+            </li>
+            <li>
+              <a href="#settings" class="sidebar-link spa-route" data-page="settings">
+                <i class="bi bi-sliders"></i>
+                <span>تنظیمات عمومی</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <a href="#" class="sidebar-link text-danger" id="sidebarLogoutBtn">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>خروج از حساب</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="content-area-dynamic" id="spaContainer"></main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    const API_BASE_URL = 'https://iran-form-api.reza-msi89.workers.dev'; 
+
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+    const spaContainer = document.getElementById('spaContainer');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+
+    const pages = {
+      dashboard: 'pages/dashboard.html',
+      user_management: 'pages/user_management.html',
+      profile: 'pages/profile.html',
+      files: 'pages/files.html',
+      reports: 'pages/reports.html',
+      settings: 'pages/settings.html'
+    };
+
+    function validateAuthAndLoadUser() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      
+      if (isLoggedIn !== 'true') {
+        window.location.replace('index.html');
+        return false;
+      }
+
+      // تلاش برای خواندن نام و نام خانوادگی به صورت مستقیم یا ایجاد ترکیبی از first_name و last_name
+      const storedFullName = localStorage.getItem('fullName');
+      const firstName = localStorage.getItem('first_name');
+      const lastName = localStorage.getItem('last_name');
+      
+      let displayName = 'کاربر گرامی';
+      if (storedFullName) {
+        displayName = storedFullName;
+      } else if (firstName || lastName) {
+        displayName = `${firstName || ''} ${lastName || ''}`.trim();
+      } else {
+        displayName = localStorage.getItem('username') || 'کاربر گرامی';
+      }
+
+      userNameDisplay.textContent = displayName;
+      return true;
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.replace('index.html');
+    }
+
+    async function loadRoute(pageName, updateHistory = true) {
+      document.querySelectorAll('body > .modal').forEach(modal => modal.remove());
+
+      const fileUrl = pages[pageName];
+      if (!fileUrl) return;
+
+      spaContainer.innerHTML = `<div class="py-5 text-center"><div class="spinner-border text-success" role="status"></div></div>`;
+
+      try {
+        const response = await fetch(fileUrl, { cache: 'no-store' });
+        if (!response.ok) throw new Error('خطا در بارگذاری صفحه');
+
+        const html = await response.text();
+        
+        spaContainer.innerHTML = `<div class="fade-in">${getCleanHtml(html)}</div>`;
+        updateActiveLink(pageName);
+
+        if (updateHistory) {
+          history.pushState({ page: pageName }, '', '#' + pageName);
+        }
+        
+        if (window.innerWidth < 992) {
+          closeSidebar();
+        }
+
+        executePageScripts(pageName);
+      } catch (error) {
+        spaContainer.innerHTML = `<div class="alert alert-danger">خطا در بارگذاری صفحه.</div>`;
+      }
+    }
+
+    function getCleanHtml(htmlText) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      const content = doc.querySelector('#pageContent') || doc.querySelector('main') || doc.body;
+      return content.innerHTML;
+    }
+
+    function updateActiveLink(pageName) {
+      document.querySelectorAll('.spa-route').forEach(link => {
+        link.classList.toggle('active', link.dataset.page === pageName);
+      });
+
+      const activeSubLink = document.querySelector(`.submenu .spa-route[data-page="${pageName}"]`);
+      if (activeSubLink) {
+        const parentCollapse = activeSubLink.closest('.collapse');
+        if (parentCollapse) {
+          const bsCollapse = bootstrap.Collapse.getOrCreateInstance(parentCollapse);
+          bsCollapse.show();
+        }
+      }
+    }
+
+    function executePageScripts(pageName) {
+      if (pageName === 'user_management') {
+        initUserManagementController();
+      }
+
+      if (pageName === 'profile' && typeof initProfileController === 'function') {
+        initProfileController();
+      }
+    }
+
+    function initUserManagementController() {
+      const tableBody = document.getElementById('userTableBody');
+      const totalUsersCard = document.getElementById('totalUsersCount');
+      const activeProvincesCard = document.getElementById('activeProvincesCount');
+      
+      const searchInput = document.getElementById('searchQuery');
+      const filterProvince = document.getElementById('filterProvince');
+      const filterCity = document.getElementById('filterCity');
+      const btnResetFilters = document.getElementById('btnResetFilters');
+
+      const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+      const deleteConfirmModalEl = document.getElementById('deleteConfirmModal');
+
+      const btnPrintUsers = document.getElementById('btnPrintUsers');
+      const btnExportCSV = document.getElementById('btnExportCSV');
+      const btnAddNewUser = document.getElementById('btnAddNewUser');
+      const saveUserBtn = document.getElementById('saveUserBtn');
+      const newUserForm = document.getElementById('newUserForm');
+      const addUserModalEl = document.getElementById('addUserModal');
+
+      const editUserModalEl = document.getElementById('editUserModal');
+      const updateUserBtn = document.getElementById('updateUserBtn');
+      const editUserForm = document.getElementById('editUserForm');
+
+      const newUsernameInput = document.getElementById('newUsername');
+      const editUsernameInput = document.getElementById('editUsername');
+
+      if (!tableBody) return;
+
+      [deleteConfirmModalEl, addUserModalEl, editUserModalEl].forEach(modalEl => {
+        if (modalEl && modalEl.parentElement !== document.body) {
+          document.body.appendChild(modalEl);
+        }
+      });
+
+      let allUsers = [];
+      let selectedNationalCodeForDelete = null;
+
+      const locationData = {
+        "تهران": ["تهران", "ری", "شمیرانات", "اسلامشهر", "شهریار"],
+        "اصفهان": ["اصفهان", "کاشان", "خمینی‌شهر", "نجف‌آباد", "شاهین‌شهر"],
+        "خراسان رضوی": ["مشهد", "نیشابور", "سبزوار", "تربت حیدریه"],
+        "فارس": ["شیراز", "مرودشت", "جهرم", "فسا"],
+        "آذربایجان شرقی": ["تبریز", "مراغه", "مرند", "میانه"]
+      };
+
+      const USERNAME_REGEX = /^[a-zA-Z0-9._-]{3,30}$/;
+
+      function validateUsername(username) {
+        const normalized = String(username || '').trim();
+        if (!normalized) {
+          showToast('فیلد نام کاربری الزامی است.', 'danger');
+          return false;
+        }
+        if (!USERNAME_REGEX.test(normalized)) {
+          showToast('نام کاربری باید بین ۳ تا ۳۰ کاراکتر و فقط شامل حروف، عدد، نقطه، خط تیره یا زیرخط باشد.', 'danger');
+          return false;
+        }
+        return true;
+      }
+
+      if (deleteConfirmModalEl) {
+        deleteConfirmModalEl.addEventListener('hidden.bs.modal', () => {
+          selectedNationalCodeForDelete = null;
+          if (confirmDeleteBtn) {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.innerHTML = 'بله، حذف شود';
+          }
+        });
+      }
+
+      loadUsers();
+
+      async function loadUsers() {
+        try {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                <span class="ms-2">در حال دریافت اطلاعات کاربران...</span>
+              </td>
+            </tr>
+          `;
+
+          const response = await fetch(`${API_BASE_URL}/users`, { cache: 'no-store' });
+          if (!response.ok) throw new Error('خطا در دریافت لیست کاربران');
+
+          const data = await response.json();
+          allUsers = data.users || (Array.isArray(data) ? data : []);
+
+          renderUsers(allUsers);
+          updateCards(allUsers);
+          setupProvinceFilters();
+        } catch (error) {
+          allUsers = [];
+          updateCards(allUsers);
+          tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">خطا در دریافت لیست کاربران.</td></tr>';
+        }
+      }
+
+      function renderUsers(list) {
+        if (!Array.isArray(list) || list.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">کاربری برای نمایش وجود ندارد.</td></tr>';
+          return;
+        }
+
+        tableBody.innerHTML = list.map(user => `
+          <tr>
+            <td>${user.first_name || ''} ${user.last_name || ''}</td>
+            <td>${user.username || '-'}</td>
+            <td>${user.national_code || '-'}</td>
+            <td>${user.phone || '-'}</td>
+            <td>${user.province || '-'} / ${user.city || '-'}</td>
+            <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString('fa-IR') : '-'}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-action-edit me-1" type="button" data-national-code="${user.national_code || ''}" title="ویرایش">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-action-delete" type="button" data-national-code="${user.national_code || ''}" title="حذف">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      function updateCards(users) {
+        const safeUsers = Array.isArray(users) ? users : [];
+
+        if (totalUsersCard) {
+          totalUsersCard.textContent = safeUsers.length.toLocaleString('fa-IR');
+        }
+
+        if (activeProvincesCard) {
+          const activeProvinces = new Set(
+            safeUsers
+              .map(user => user.province)
+              .filter(province => province && String(province).trim() !== '')
+          );
+          activeProvincesCard.textContent = activeProvinces.size.toLocaleString('fa-IR');
+        }
+      }
+
+      function filterUsers() {
+        const query = (searchInput?.value || '').trim().toLowerCase();
+        const selectedProvince = filterProvince?.value || '';
+        const selectedCity = filterCity?.value || '';
+
+        const filteredUsers = allUsers.filter(user => {
+          const fullName = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
+          const username = String(user.username || '').toLowerCase();
+          const nationalCode = String(user.national_code || '').toLowerCase();
+          const phone = String(user.phone || '').toLowerCase();
+          const province = String(user.province || '').toLowerCase();
+          const city = String(user.city || '').toLowerCase();
+
+          const matchesQuery = !query || (
+            fullName.includes(query) ||
+            username.includes(query) ||
+            nationalCode.includes(query) ||
+            phone.includes(query) ||
+            province.includes(query) ||
+            city.includes(query)
+          );
+
+          const matchesProvince = !selectedProvince || user.province === selectedProvince;
+          const matchesCity = !selectedCity || user.city === selectedCity;
+
+          return matchesQuery && matchesProvince && matchesCity;
+        });
+
+        renderUsers(filteredUsers);
+      }
+
+      if (searchInput) searchInput.addEventListener('input', filterUsers);
+      if (filterProvince) filterProvince.addEventListener('change', filterUsers);
+      if (filterCity) filterCity.addEventListener('change', filterUsers);
+
+      if (btnResetFilters) {
+        btnResetFilters.addEventListener('click', () => {
+          if (searchInput) searchInput.value = '';
+          if (filterProvince) filterProvince.value = '';
+          if (filterCity) {
+            filterCity.innerHTML = '<option value="">همه شهرها</option>';
+            filterCity.disabled = true;
+          }
+          renderUsers(allUsers);
+        });
+      }
+
+      function setupProvinceFilters() {
+        if (filterProvince && filterCity) {
+          filterProvince.innerHTML = '<option value="">همه استان‌ها</option>';
+          Object.keys(locationData).forEach(prov => {
+            filterProvince.innerHTML += `<option value="${prov}">${prov}</option>`;
+          });
+
+          filterProvince.onchange = function() {
+            const prov = this.value;
+            filterCity.innerHTML = '<option value="">همه شهرها</option>';
+            
+            if (prov && locationData[prov]) {
+              filterCity.disabled = false;
+              locationData[prov].forEach(city => {
+                filterCity.innerHTML += `<option value="${city}">${city}</option>`;
+              });
+            } else {
+              filterCity.disabled = true;
+            }
+            filterUsers();
+          };
+        }
+
+        const newProvince = document.getElementById('newProvince');
+        const newCity = document.getElementById('newCity');
+        if (newProvince && newCity) {
+          newProvince.innerHTML = '<option value="">انتخاب استان...</option>';
+          Object.keys(locationData).forEach(prov => {
+            newProvince.innerHTML += `<option value="${prov}">${prov}</option>`;
+          });
+
+          newProvince.onchange = function() {
+            const prov = this.value;
+            newCity.innerHTML = '<option value="">انتخاب شهر...</option>';
+            if (prov && locationData[prov]) {
+              newCity.disabled = false;
+              locationData[prov].forEach(city => {
+                newCity.innerHTML += `<option value="${city}">${city}</option>`;
+              });
+            } else {
+              newCity.disabled = true;
+            }
+          };
+        }
+
+        const editProvince = document.getElementById('editProvince');
+        const editCity = document.getElementById('editCity');
+        if (editProvince && editCity) {
+          editProvince.innerHTML = '<option value="">انتخاب استان...</option>';
+          Object.keys(locationData).forEach(prov => {
+            editProvince.innerHTML += `<option value="${prov}">${prov}</option>`;
+          });
+
+          editProvince.onchange = function() {
+            const prov = this.value;
+            editCity.innerHTML = '<option value="">انتخاب شهر...</option>';
+            if (prov && locationData[prov]) {
+              editCity.disabled = false;
+              locationData[prov].forEach(city => {
+                editCity.innerHTML += `<option value="${city}">${city}</option>`;
+              });
+            } else {
+              editCity.disabled = true;
+            }
+          };
+        }
+      }
+
+      if (btnAddNewUser) {
+        btnAddNewUser.addEventListener('click', () => {
+          if (newUserForm) newUserForm.reset();
+          const newCity = document.getElementById('newCity');
+          if (newCity) newCity.disabled = true;
+
+          if (addUserModalEl) {
+            const addModal = bootstrap.Modal.getOrCreateInstance(addUserModalEl);
+            addModal.show();
+          }
+        });
+      }
+
+      if (saveUserBtn) {
+        saveUserBtn.addEventListener('click', async () => {
+          if (newUserForm && !newUserForm.checkValidity()) {
+            newUserForm.reportValidity();
+            return;
+          }
+
+          const username = newUsernameInput?.value.trim() || '';
+          if (!validateUsername(username)) return;
+
+          const payload = {
+            first_name: document.getElementById('newFirstName')?.value.trim(),
+            last_name: document.getElementById('newLastName')?.value.trim(),
+            username,
+            national_code: document.getElementById('newNationalCode')?.value.trim(),
+            phone: document.getElementById('newPhone')?.value.trim(),
+            province: document.getElementById('newProvince')?.value,
+            city: document.getElementById('newCity')?.value
+          };
+
+          saveUserBtn.disabled = true;
+          const originalText = saveUserBtn.textContent;
+          saveUserBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> در حال ذخیره...`;
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/users/register`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+              const errData = await response.json().catch(() => ({}));
+              throw new Error(errData.message || 'خطا در ثبت کاربر');
+            }
+
+            showToast('کاربر جدید با موفقیت ثبت شد.', 'success');
+            
+            const addModal = bootstrap.Modal.getInstance(addUserModalEl);
+            if (addModal) addModal.hide();
+            
+            if (newUserForm) newUserForm.reset();
+            
+            await loadUsers();
+          } catch (error) {
+            showToast(error.message || 'خطا در ثبت کاربر جدید.', 'danger');
+          } finally {
+            saveUserBtn.disabled = false;
+            saveUserBtn.textContent = originalText;
+          }
+        });
+      }
+
+      tableBody.addEventListener('click', event => {
+        const deleteButton = event.target.closest('.btn-action-delete');
+        if (deleteButton) {
+          selectedNationalCodeForDelete = deleteButton.dataset.nationalCode;
+          if (!selectedNationalCodeForDelete) {
+            showToast('کد ملی کاربر برای حذف معتبر نیست.', 'danger');
+            return;
+          }
+          if (deleteConfirmModalEl) {
+            bootstrap.Modal.getOrCreateInstance(deleteConfirmModalEl).show();
+          }
+          return;
+        }
+
+        const editButton = event.target.closest('.btn-action-edit');
+        if (editButton) {
+          const natCode = editButton.dataset.nationalCode;
+          openEditModal(natCode);
+        }
+      });
+
+      function openEditModal(nationalCode) {
+        const user = allUsers.find(u => u.national_code === nationalCode);
+        if (!user) {
+          showToast('کاربر مورد نظر یافت نشد.', 'danger');
+          return;
+        }
+
+        document.getElementById('editOriginalNationalCode').value = user.national_code || '';
+        document.getElementById('editFirstName').value = user.first_name || '';
+        document.getElementById('editLastName').value = user.last_name || '';
+        document.getElementById('editNationalCode').value = user.national_code || '';
+        document.getElementById('editPhone').value = user.phone || '';
+        if (editUsernameInput) {
+          editUsernameInput.value = user.username || '';
+        }
+        
+        const editProvince = document.getElementById('editProvince');
+        const editCity = document.getElementById('editCity');
+        
+        if (editProvince) {
+          editProvince.value = user.province || '';
+          if (editCity) {
+            editCity.innerHTML = '<option value="">انتخاب شهر...</option>';
+            if (user.province && locationData[user.province]) {
+              editCity.disabled = false;
+              locationData[user.province].forEach(c => {
+                const selected = c === user.city ? 'selected' : '';
+                editCity.innerHTML += `<option value="${c}" ${selected}>${c}</option>`;
+              });
+            } else {
+              editCity.disabled = true;
+            }
+          }
+        }
+
+        if (editUserModalEl) {
+          bootstrap.Modal.getOrCreateInstance(editUserModalEl).show();
+        }
+      }
+
+      if (updateUserBtn) {
+        updateUserBtn.addEventListener('click', async () => {
+          if (editUserForm && !editUserForm.checkValidity()) {
+            editUserForm.reportValidity();
+            return;
+          }
+
+          const username = editUsernameInput?.value.trim() || '';
+          if (!validateUsername(username)) return;
+
+          const originalNationalCode = document.getElementById('editOriginalNationalCode').value;
+          const payload = {
+            national_code: originalNationalCode,
+            first_name: document.getElementById('editFirstName')?.value.trim(),
+            last_name: document.getElementById('editLastName')?.value.trim(),
+            username,
+            phone: document.getElementById('editPhone')?.value.trim(),
+            province: document.getElementById('editProvince')?.value,
+            city: document.getElementById('editCity')?.value
+          };
+
+          updateUserBtn.disabled = true;
+          const originalText = updateUserBtn.textContent;
+          updateUserBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> در حال بروزرسانی...`;
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/users/update`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+              const errData = await response.json().catch(() => ({}));
+              throw new Error(errData.message || 'خطا در بروزرسانی اطلاعات کاربر');
+            }
+
+            showToast('اطلاعات کاربر با موفقیت بروزرسانی شد.', 'success');
+            bootstrap.Modal.getInstance(editUserModalEl)?.hide();
+            await loadUsers();
+          } catch (error) {
+            showToast(error.message || 'خطا در بروزرسانی اطلاعات.', 'danger');
+          } finally {
+            updateUserBtn.disabled = false;
+            updateUserBtn.textContent = originalText;
+          }
+        });
+      }
+
+      if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async () => {
+          if (!selectedNationalCodeForDelete) {
+            showToast('کاربری برای حذف انتخاب نشده است.', 'danger');
+            return;
+          }
+
+          const originalButtonHtml = confirmDeleteBtn.innerHTML;
+          confirmDeleteBtn.disabled = true;
+          confirmDeleteBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            در حال حذف...
+          `;
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/users/delete`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nationalCode: selectedNationalCodeForDelete })
+            });
+
+            if (!response.ok) {
+              throw new Error('خطا در حذف کاربر');
+            }
+
+            const deleteModal = bootstrap.Modal.getInstance(deleteConfirmModalEl);
+            if (deleteModal) deleteModal.hide();
+
+            showToast('کاربر با موفقیت حذف شد.', 'success');
+            selectedNationalCodeForDelete = null;
+
+            await loadUsers();
+          } catch (error) {
+            showToast('خطا در حذف کاربر. لطفاً دوباره تلاش کنید.', 'danger');
+          } finally {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.innerHTML = originalButtonHtml;
+          }
+        });
+      }
+
+      if (btnPrintUsers) {
+        btnPrintUsers.addEventListener('click', () => {
+          const tableContainer = document.querySelector('.table-responsive');
+          if (!tableContainer) return;
+          
+          const printWindow = window.open('', '_blank', 'width=900,height=700');
+          printWindow.document.write(`
+            <html dir="rtl">
+            <head>
+              <title>لیست کاربران سامانه فانوس 360</title>
+              <style>
+                body { font-family: Tahoma, Arial, sans-serif; padding: 25px; direction: rtl; }
+                h2 { text-align: center; color: #333; margin-bottom: 20px; font-size: 18px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                th { background-color: #f7f7f7; font-weight: bold; }
+                .btn-action-edit, .btn-action-delete, th:last-child, td:last-child { display: none !important; }
+              </style>
+            </head>
+            <body>
+              <h2>گزارش چاپی لیست کاربران سامانه</h2>
+              ${tableContainer.innerHTML}
+            </body>
+            </html>
+          `);
+          printWindow.document.close();
+          printWindow.focus();
+          setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+          }, 250);
+        });
+      }
+
+      if (btnExportCSV) {
+        btnExportCSV.addEventListener('click', () => {
+          if (allUsers.length === 0) {
+            showToast('داده‌ای برای خروجی وجود ندارد.', 'danger');
+            return;
+          }
+          
+          let csvContent = "\ufeff";
+          csvContent += "نام و نام خانوادگی,نام کاربری,کد ملی,شماره تماس,استان,شهر,تاریخ عضویت\n";
+          
+          allUsers.forEach(user => {
+            const fullName = `${user.first_name || ''} ${user.last_name || ''}`.replace(/,/g, ' ');
+            const username = (user.username || '-').replace(/,/g, ' ');
+            const nationalCode = user.national_code || '-';
+            const phone = user.phone || '-';
+            const province = user.province || '-';
+            const city = user.city || '-';
+            const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString('fa-IR') : '-';
+            
+            csvContent += `"${fullName}","${username}","${nationalCode}","${phone}","${province}","${city}","${createdAt}"\n`;
+          });
+          
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.setAttribute("href", url);
+          link.setAttribute("download", `users_report_${Date.now()}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      }
+    }
+
+    function showToast(message, type = 'success') {
+      let toastContainer = document.getElementById('toastContainer');
+
+      if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.className = 'toast-container position-fixed bottom-0 start-0 p-3';
+        toastContainer.style.zIndex = '1080';
+        document.body.appendChild(toastContainer);
+      }
+
+      const toastId = `toast-${Date.now()}`;
+      const iconClass = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+      const headerClass = type === 'success' ? 'text-success' : 'text-danger';
+      const title = type === 'success' ? 'عملیات موفق' : 'خطا';
+
+      const toastEl = document.createElement('div');
+      toastEl.id = toastId;
+      toastEl.className = 'toast align-items-center border-0 shadow';
+      toastEl.setAttribute('role', 'alert');
+      toastEl.setAttribute('aria-live', 'assertive');
+      toastEl.setAttribute('aria-atomic', 'true');
+
+      toastEl.innerHTML = `
+        <div class="toast-header">
+          <i class="bi ${iconClass} ${headerClass} me-2"></i>
+          <strong class="me-auto">${title}</strong>
+          <small class="text-muted">اکنون</small>
+          <button type="button" class="btn-close ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          ${message}
+        </div>
+      `;
+
+      toastContainer.appendChild(toastEl);
+
+      const toast = new bootstrap.Toast(toastEl, {
+        autohide: true,
+        delay: 4000
+      });
+
+      toast.show();
+
+      toastEl.addEventListener('hidden.bs.toast', () => {
+        toastEl.remove();
+      });
+    }
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('show');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('show');
+    }
+
+    menuToggleBtn.addEventListener('click', openSidebar);
+    sidebarCloseBtn.addEventListener('click', closeSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    document.getElementById('sidebarLogoutBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+
+    document.querySelectorAll('.spa-route').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        loadRoute(this.dataset.page);
+      });
+    });
+
+    window.addEventListener('popstate', (e) => {
+      const page = e.state?.page || window.location.hash.replace('#', '') || 'dashboard';
+      loadRoute(page, false);
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (validateAuthAndLoadUser()) {
+        const page = window.location.hash.replace('#', '') || 'dashboard';
+        loadRoute(page, false);
+      }
+    });
+  </script>
+</body>
+</html>
