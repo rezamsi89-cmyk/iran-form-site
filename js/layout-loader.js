@@ -12,7 +12,7 @@
     settings: 'pages/settings.html'
   };
 
-  let layout = {
+  const layout = {
     headerMount: null,
     sidebarMount: null,
     spaContainer: null,
@@ -20,11 +20,13 @@
     sidebarOverlay: null,
     menuToggle: null,
     logoutBtn: null,
-    navLinks: []
+    navLinks: [],
+    headerUserName: null
   };
 
   let isLayoutInitialized = false;
   let isRouteLoading = false;
+  let eventsBound = false;
 
   function qs(selector, parent = document) {
     return parent.querySelector(selector);
@@ -38,6 +40,14 @@
     return localStorage.getItem('token');
   }
 
+  function getUser() {
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch (error) {
+      return null;
+    }
+  }
+
   function getCurrentPageKey() {
     const hash = window.location.hash.replace('#', '').trim();
     if (!hash) return 'dashboard';
@@ -49,6 +59,12 @@
       const linkPage = link.getAttribute('data-page');
       link.classList.toggle('active', linkPage === pageKey);
     });
+  }
+
+  function updateHeaderUser() {
+    if (!layout.headerUserName) return;
+    const user = getUser();
+    layout.headerUserName.textContent = user?.fullName || user?.username || 'کاربر سیستم';
   }
 
   function closeSidebar() {
@@ -77,7 +93,6 @@
 
   function toggleSidebar() {
     if (!layout.sidebar) return;
-
     const isOpen = layout.sidebar.classList.contains('show');
     if (isOpen) {
       closeSidebar();
@@ -128,8 +143,7 @@
       throw new Error(`Failed to load layout file: ${filePath}`);
     }
 
-    const html = await response.text();
-    target.innerHTML = html;
+    target.innerHTML = await response.text();
   }
 
   function cacheLayoutElements() {
@@ -141,9 +155,61 @@
     layout.menuToggle = qs('#menuToggle');
     layout.logoutBtn = qs('#logoutBtn');
     layout.navLinks = qsa('[data-page]');
+    layout.headerUserName = qs('#headerUserName');
+  }
+
+  function redirectToLogin() {
+    window.location.replace('index.html');
+  }
+
+  function clearAuth() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }
+
+  async function handleLogout(event) {
+    event.preventDefault();
+
+    try {
+      const token = getToken();
+
+      if (token && API_BASE_URL !== 'YOUR_API_BASE_URL_HERE') {
+        await fetch(`${API_BASE_URL}/logout`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }).catch(() => {});
+      }
+    } finally {
+      clearAuth();
+      redirectToLogin();
+    }
+  }
+
+  function handleNavClick(link, event) {
+    const page = link.getAttribute('data-page');
+
+    if (!page || !pages[page]) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (window.location.hash.replace('#', '') === page) {
+      handleRouteChange();
+    } else {
+      window.location.hash = page;
+    }
+
+    if (isMobileView()) {
+      closeSidebar();
+    }
   }
 
   function bindLayoutEvents() {
+    if (eventsBound) return;
+
     if (layout.menuToggle) {
       layout.menuToggle.addEventListener('click', toggleSidebar);
     }
@@ -153,52 +219,17 @@
     }
 
     if (layout.logoutBtn) {
-      layout.logoutBtn.addEventListener('click', async (event) => {
-        event.preventDefault();
-
-        try {
-          const token = getToken();
-
-          if (token) {
-            await fetch(`${API_BASE_URL}/logout`, {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            }).catch(() => {});
-          }
-        } finally {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = 'index.html';
-        }
-      });
+      layout.logoutBtn.addEventListener('click', handleLogout);
     }
 
     layout.navLinks.forEach((link) => {
-      link.addEventListener('click', (event) => {
-        const page = link.getAttribute('data-page');
-
-        if (!page || !pages[page]) {
-          return;
-        }
-
-        event.preventDefault();
-
-        if (window.location.hash.replace('#', '') === page) {
-          handleRouteChange();
-        } else {
-          window.location.hash = page;
-        }
-
-        if (isMobileView()) {
-          closeSidebar();
-        }
-      });
+      link.addEventListener('click', (event) => handleNavClick(link, event));
     });
 
     window.addEventListener('resize', ensureDesktopSidebarState);
     window.addEventListener('hashchange', handleRouteChange);
+
+    eventsBound = true;
   }
 
   async function initializeLayout() {
@@ -212,7 +243,9 @@
     ]);
 
     cacheLayoutElements();
+    updateHeaderUser();
     bindLayoutEvents();
+
     isLayoutInitialized = true;
   }
 
@@ -233,8 +266,7 @@
         throw new Error(`Failed to load page: ${pagePath}`);
       }
 
-      const html = await response.text();
-      layout.spaContainer.innerHTML = html;
+      layout.spaContainer.innerHTML = await response.text();
       setActiveMenu(pageKey);
 
       if (typeof window.initializePage === 'function') {
@@ -258,6 +290,13 @@
     isRouteLoading = true;
 
     try {
+      const token = getToken();
+      if (!token) {
+        clearAuth();
+        redirectToLogin();
+        return;
+      }
+
       const pageKey = getCurrentPageKey();
       await loadPage(pageKey);
     } finally {
@@ -269,7 +308,8 @@
     const token = getToken();
 
     if (!token) {
-      window.location.href = 'index.html';
+      clearAuth();
+      redirectToLogin();
       return false;
     }
 
