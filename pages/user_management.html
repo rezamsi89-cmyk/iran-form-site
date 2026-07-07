@@ -1,0 +1,236 @@
+<div id="pageContent">
+  <!-- هدر صفحه و آمار -->
+  <div class="row align-items-center mb-4">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-success mb-1">مدیریت کاربران</h3>
+      <p class="text-muted fs-7">تعریف، ویرایش و مدیریت دسترسی کاربران سامانه</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+      <button class="btn btn-success px-4" id="btnAddNewUser">
+        <i class="bi bi-person-plus-fill me-2"></i> ثبت کاربر جدید
+      </button>
+    </div>
+  </div>
+
+  <!-- کارت‌های آماری -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-dashboard p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between">
+        <div>
+          <span class="text-muted d-block mb-1">کل کاربران ثبت شده</span>
+          <h4 class="fw-bold mb-0 text-success" id="totalUsersCount">۰</h4>
+        </div>
+        <div class="bg-success-subtle text-success p-3 rounded-3">
+          <i class="bi bi-people-fill fs-3"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card card-dashboard p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between">
+        <div>
+          <span class="text-muted d-block mb-1">استان‌های فعال</span>
+          <h4 class="fw-bold mb-0 text-primary" id="activeProvincesCount">۰</h4>
+        </div>
+        <div class="bg-primary-subtle text-primary p-3 rounded-3">
+          <i class="bi bi-geo-alt-fill fs-3"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- بخش فیلتر و جستجو -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form id="filterForm" onsubmit="event.preventDefault();">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label text-muted fs-7">جستجوی متنی</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+              <input type="text" class="form-control bg-light border-0" id="searchQuery" placeholder="نام، کدملی، شماره تماس...">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label text-muted fs-7">استان</label>
+            <select class="form-select bg-light border-0" id="filterProvince">
+              <option value="">همه استان‌ها</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label text-muted fs-7">شهر</label>
+            <select class="form-select bg-light border-0" id="filterCity" disabled>
+              <option value="">همه شهرها</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-outline-secondary w-100 py-2 border-0 bg-light" type="button" id="btnResetFilters">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> بازنشانی
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- جدول کاربران -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
+      <h5 class="mb-0 fw-bold text-dark">لیست کاربران</h5>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-success border-0 bg-light px-3" id="btnExportCSV">
+          <i class="bi bi-file-earmark-spreadsheet me-1"></i> خروجی Excel
+        </button>
+        <button class="btn btn-sm btn-outline-primary border-0 bg-light px-3" id="btnPrintUsers">
+          <i class="bi bi-printer me-1"></i> چاپ لیست
+        </button>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="py-3">نام و نام خانوادگی</th>
+              <th scope="col" class="py-3">کد ملی</th>
+              <th scope="col" class="py-3">شماره تماس</th>
+              <th scope="col" class="py-3">موقعیت (استان/شهر)</th>
+              <th scope="col" class="py-3">تاریخ ثبت‌نام</th>
+              <th scope="col" class="py-3 text-center" style="width: 120px;">عملیات</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <!-- داده‌ها به صورت داینامیک از API بارگذاری می‌شوند -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== مودال ثبت کاربر جدید ==================== -->
+  <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-success text-white border-0 py-3">
+          <h5 class="modal-title fw-bold" id="addUserModalLabel">
+            <i class="bi bi-person-plus-fill me-2"></i> ثبت کاربر جدید
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="بستن"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="newUserForm" onsubmit="event.preventDefault();">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="newFirstName" class="form-label text-muted fs-7">نام</label>
+                <input type="text" class="form-control border-light-subtle bg-light" id="newFirstName" required>
+              </div>
+              <div class="col-md-6">
+                <label for="newLastName" class="form-label text-muted fs-7">نام خانوادگی</label>
+                <input type="text" class="form-control border-light-subtle bg-light" id="newLastName" required>
+              </div>
+              <div class="col-md-6">
+                <label for="newNationalCode" class="form-label text-muted fs-7">کد ملی (نام کاربری)</label>
+                <input type="text" class="form-control border-light-subtle bg-light text-end" id="newNationalCode" placeholder="0012345678" maxlength="10" required>
+              </div>
+              <div class="col-md-6">
+                <label for="newPhone" class="form-label text-muted fs-7">شماره تماس (تلفن همراه)</label>
+                <input type="text" class="form-control border-light-subtle bg-light text-end" id="newPhone" placeholder="09123456789" required>
+              </div>
+              <div class="col-md-6">
+                <label for="newProvince" class="form-label text-muted fs-7">استان</label>
+                <select class="form-select border-light-subtle bg-light" id="newProvince" required>
+                  <option value="">انتخاب استان...</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="newCity" class="form-label text-muted fs-7">شهر</label>
+                <select class="form-select border-light-subtle bg-light" id="newCity" required disabled>
+                  <option value="">ابتدا استان را انتخاب کنید...</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">انصراف و بازگشت</button>
+          <button type="button" class="btn btn-success px-4" id="saveUserBtn">ثبت کاربر</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== مودال ویرایش کاربر ==================== -->
+  <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-primary text-white border-0 py-3">
+          <h5 class="modal-title fw-bold" id="editUserModalLabel">
+            <i class="bi bi-pencil-square me-2"></i> ویرایش پروفایل کاربر
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="بستن"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="editUserForm" onsubmit="event.preventDefault();">
+            <!-- یک فیلد هیدن برای نگه داشتن کدملی اصلی جهت احراز در وب‌سرویس -->
+            <input type="hidden" id="editOriginalNationalCode">
+            
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="editFirstName" class="form-label text-muted fs-7">نام</label>
+                <input type="text" class="form-control border-light-subtle bg-light" id="editFirstName" required>
+              </div>
+              <div class="col-md-6">
+                <label for="editLastName" class="form-label text-muted fs-7">نام خانوادگی</label>
+                <input type="text" class="form-control border-light-subtle bg-light" id="editLastName" required>
+              </div>
+              <div class="col-md-6">
+                <label for="editNationalCode" class="form-label text-muted fs-7">کد ملی</label>
+                <!-- کدملی غیرقابل تغییر به عنوان کلید یکتا -->
+                <input type="text" class="form-control border-light-subtle bg-light text-end" id="editNationalCode" disabled>
+              </div>
+              <div class="col-md-6">
+                <label for="editPhone" class="form-label text-muted fs-7">شماره تماس</label>
+                <input type="text" class="form-control border-light-subtle bg-light text-end" id="editPhone" required>
+              </div>
+              <div class="col-md-6">
+                <label for="editProvince" class="form-label text-muted fs-7">استان</label>
+                <select class="form-select border-light-subtle bg-light" id="editProvince" required>
+                  <option value="">انتخاب استان...</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="editCity" class="form-label text-muted fs-7">شهر</label>
+                <select class="form-select border-light-subtle bg-light" id="editCity" required>
+                  <option value="">انتخاب شهر...</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">انصراف و بازگشت</button>
+          <button type="button" class="btn btn-primary px-4" id="updateUserBtn">ویرایش اطلاعات</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== مودال تایید حذف کاربر ==================== -->
+  <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-danger text-white border-0 py-3">
+          <h5 class="modal-title fw-bold" id="deleteConfirmModalLabel">تأیید حذف</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="بستن"></button>
+        </div>
+        <div class="modal-body text-center p-4">
+          <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3 d-block"></i>
+          <p class="mb-0">آیا از حذف این کاربر اطمینان دارید؟ این عملیات غیر قابل بازگشت است.</p>
+        </div>
+        <div class="modal-footer border-0 bg-light p-3 d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">انصراف</button>
+          <button type="button" class="btn btn-danger px-3" id="confirmDeleteBtn">بله، حذف شود</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
