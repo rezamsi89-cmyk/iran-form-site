@@ -236,49 +236,43 @@
   
   
 function bindLayoutEvents() {
-  const sidebar = qs('#appSidebar');
-  const toggleBtn = qs('#sidebarToggle');
-  const overlay = qs('#sidebarOverlay');
+  // انتخاب عناصر با IDهای صحیح
+  const sidebar = document.getElementById('appSidebar');
+  const toggleBtn = document.getElementById('sidebarToggleBtn');
+  const overlay = document.getElementById('sidebarOverlay');
 
-  // ۱. کنترل باز و بسته شدن با دکمه همبرگری
-  toggleBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
+  if (!sidebar || !toggleBtn) return;
+
+  // ۱. کلیک روی دکمه همبرگری (باز و بسته کردن)
+  toggleBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation(); // جلوگیری از نفوذ کلیک به document
     sidebar.classList.toggle('expanded');
-    // اگر در موبایل هستید، کلاس show هم اضافه/حذف شود
-    if (window.innerWidth < 992) {
-      sidebar.classList.toggle('show');
-      overlay.classList.toggle('show');
-      document.body.classList.toggle('sidebar-open');
+    console.log("Sidebar toggled. Current state:", sidebar.classList.contains('expanded'));
+  });
+
+  // ۲. کلیک روی هر نقطه از صفحه برای بستن سایدبار
+  document.addEventListener('click', function(e) {
+    // اگر سایدبار باز بود و کلیک خارج از بدنه سایدبار انجام شد
+    if (sidebar.classList.contains('expanded')) {
+      if (!sidebar.contains(e.target)) {
+        sidebar.classList.remove('expanded');
+      }
     }
   });
 
-  // ۲. بستن با کلیک روی هر جای صفحه (غیر از سایدبار)
-  document.addEventListener('click', (e) => {
-    const isClickInside = sidebar.contains(e.target);
-    
-    if (!isClickInside) {
-      sidebar.classList.remove('expanded');
-      sidebar.classList.remove('show');
-      overlay.classList.remove('show');
-      document.body.classList.remove('sidebar-open');
-    }
-  });
-
-  // ۳. کلیک روی لینک‌ها (بسته شدن سایدبار بعد از انتخاب)
-  const navLinks = qsa('.sidebar-link');
+  // ۳. بستن سایدبار بعد از کلیک روی لینک‌های منو (اختیاری - برای تجربه کاربری بهتر)
+  const navLinks = sidebar.querySelectorAll('.sidebar-nav .sidebar-link');
   navLinks.forEach(link => {
     link.addEventListener('click', () => {
+      // فقط در موبایل یا اگر مایل بودید در دسکتاپ، بعد از کلیک بسته شود:
       if (window.innerWidth < 992) {
-        sidebar.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.classList.remove('sidebar-open');
+        sidebar.classList.remove('expanded');
       }
-      // در دسکتاپ شاید نخواهید با کلیک روی هر لینک سایدبار بسته شود، 
-      // اگر می‌خواهید، خط زیر را فعال کنید:
-      // sidebar.classList.remove('expanded'); 
     });
   });
 }
+
 
 
 /*
