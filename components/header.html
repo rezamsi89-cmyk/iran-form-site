@@ -1,69 +1,55 @@
-<header class="top-header main-header">
-  <div class="container-fluid px-3 d-flex align-items-center justify-content-between header-inner">
-    
-    <!-- سمت راست: دکمه موبایل + لوگو و عنوان هماهنگ با سایدبار -->
-    <div class="d-flex align-items-center gap-3">
-      <button class="btn btn-link p-0 d-lg-none text-dark" id="menuToggle" aria-label="منوی اصلی">
+<header class="top-header app-header">
+  <div class="container-fluid app-header-inner">
+    <div class="app-header-right">
+      <button class="btn btn-link p-0 d-lg-none text-dark app-header-menu-btn" id="menuToggle" aria-label="باز کردن منو">
         <i class="bi bi-list fs-2"></i>
       </button>
-      
-      <div class="header-brand-wrapper">
-        <a href="#dashboard" class="header-brand-link">
-          <div class="header-logo-icon">
-            <i class="bi bi-shield-check"></i>
-          </div>
-          <div class="header-brand-text">
-            <h1 class="header-title">مدیریت</h1>
-            <p class="header-subtitle">داشبورد سازمانی</p>
-          </div>
-        </a>
-      </div>
+
+      <a href="#dashboard" class="app-header-brand">
+        <div class="app-header-brand-badge">پنل</div>
+        <div class="app-header-brand-text">
+          <h1 class="app-header-title">مدیریت</h1>
+          <p class="app-header-subtitle">داشبورد سازمانی</p>
+        </div>
+      </a>
     </div>
 
-    <!-- سمت چپ: بخش کاربر با ساختار دوخطی و دراپ‌داون اختصاصی -->
-    <div class="dropdown header-user-dropdown">
+    <div class="dropdown">
       <button
-        class="header-user-trigger"
+        class="app-header-user"
         type="button"
         id="userMenuBtn"
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        <!-- خوش‌آمدگویی دوخطی -->
-        <div class="header-user-text d-none d-md-flex">
-          <span class="header-user-welcome">خوش آمدید،</span>
-          <span id="headerUserName" class="header-user-name">کاربر سیستم</span>
+        <div class="app-header-user-text d-none d-md-flex">
+          <span class="app-header-user-welcome">خوش آمدید</span>
+          <span id="headerUserName" class="app-header-user-name">کاربر سیستم</span>
         </div>
-
-        <!-- دایره آیکون کاربر -->
-        <div class="header-user-avatar">
-          <i class="bi bi-person-circle"></i>
-        </div>
+        <i class="bi bi-person-circle app-header-user-icon"></i>
       </button>
 
-      <!-- منوی دراپ‌داون هماهنگ با استایل‌های کارت‌های پروژه -->
-      <ul class="dropdown-menu dropdown-menu-end header-user-menu shadow-md" aria-labelledby="userMenuBtn">
+      <ul class="dropdown-menu dropdown-menu-end app-header-dropdown" aria-labelledby="userMenuBtn">
         <li>
-          <a class="dropdown-item header-user-menu-item" href="#profile">
-            <i class="bi bi-person-badge"></i>
+          <a class="dropdown-item app-header-dropdown-item" href="#profile">
+            <i class="bi bi-person"></i>
             <span>پروفایل کاربر</span>
           </a>
         </li>
         <li>
-          <a class="dropdown-item header-user-menu-item" href="#settings">
+          <a class="dropdown-item app-header-dropdown-item" href="#settings">
             <i class="bi bi-gear"></i>
             <span>تنظیمات</span>
           </a>
         </li>
-        <li><hr class="dropdown-divider header-user-divider"></li>
+        <li><hr class="dropdown-divider"></li>
         <li>
-          <a class="dropdown-item header-user-menu-item header-user-logout" href="#" id="logoutBtn">
-            <i class="bi bi-power"></i>
+          <a class="dropdown-item app-header-dropdown-item text-danger" href="#" id="logoutBtn">
+            <i class="bi bi-box-arrow-right"></i>
             <span>خروج از سامانه</span>
           </a>
         </li>
       </ul>
     </div>
-
   </div>
 </header>
