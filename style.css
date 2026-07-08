@@ -481,3 +481,167 @@ body.sidebar-open {
     right: -85vw;
   }
 }
+
+
+
+
+/* ==========================================================================
+   اضافات هدر و تطبیق با سایدبار (Header & Sidebar Alignments)
+   ========================================================================== */
+
+.main-header {
+  background-color: var(--header-bg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-speed) ease;
+}
+
+.header-inner {
+  height: 100%;
+}
+
+.header-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+/* نماد لوگوی سمت راست هدر */
+.header-logo-icon {
+  width: 42px;
+  height: 42px;
+  background-color: rgba(25, 135, 84, 0.08); /* رنگ سبز کم‌رنگ پس‌زمینه آیکون */
+  color: var(--primary-color);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  box-shadow: 0 4px 10px rgba(25, 135, 84, 0.1);
+}
+
+.header-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.header-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* کنترل دکمه تریگر کاربر */
+.header-user-trigger {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  border-radius: var(--border-radius-md);
+  transition: background-color var(--transition-speed) ease;
+}
+
+.header-user-trigger:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.header-user-text {
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.header-user-welcome {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.header-user-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* آیکون گرد کاربر */
+.header-user-avatar {
+  font-size: 2.1rem;
+  color: #a0aec0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-speed) ease;
+}
+
+.header-user-trigger:hover .header-user-avatar {
+  color: var(--primary-color);
+}
+
+/* استایل‌دهی دراپ‌داون اختصاصی هدر */
+.header-user-menu {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 8px;
+  min-width: 210px;
+  margin-top: 10px !important;
+}
+
+.header-user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  color: var(--text-dark);
+  font-size: 0.88rem;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-speed) ease;
+}
+
+.header-user-menu-item i {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  transition: color var(--transition-speed) ease;
+}
+
+.header-user-menu-item:hover {
+  background-color: rgba(25, 135, 84, 0.05);
+  color: var(--primary-color);
+}
+
+.header-user-menu-item:hover i {
+  color: var(--primary-color);
+}
+
+/* آیتم خروج */
+.header-user-logout {
+  color: var(--danger-color);
+}
+
+.header-user-logout i {
+  color: var(--danger-color);
+}
+
+.header-user-logout:hover {
+  background-color: rgba(220, 53, 69, 0.06);
+  color: var(--danger-color);
+}
+
+.header-user-logout:hover i {
+  color: var(--danger-color);
+}
+
+.header-user-divider {
+  margin: 6px 0;
+  border-color: var(--border-color);
+  opacity: 1;
+}
