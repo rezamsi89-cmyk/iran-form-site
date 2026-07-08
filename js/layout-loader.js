@@ -21,7 +21,7 @@
     sidebar: null,
     sidebarOverlay: null,
     menuToggle: null,
-    logoutBtn: null,
+    logoutBtns: [], // به آرایه تغییر یافت تا چند دکمه خروج را همزمان مدیریت کند
     navLinks: [],
     headerUserName: null
   };
@@ -65,9 +65,10 @@
     return Object.prototype.hasOwnProperty.call(pages, hash) ? hash : 'dashboard';
   }
 
+  // بهینه‌سازی شده برای پشتیبانی از هر دو اتریبیوت data-page و data-route
   function setActiveMenu(pageKey) {
     layout.navLinks.forEach((link) => {
-      const linkPage = link.getAttribute('data-page');
+      const linkPage = link.getAttribute('data-page') || link.getAttribute('data-route');
       link.classList.toggle('active', linkPage === pageKey);
     });
   }
@@ -76,6 +77,7 @@
     if (!layout.headerUserName) return;
 
     const user = getUser();
+    // نام کاربر را در خط دوم خوش‌آمدگویی هدر نمایش می‌دهد
     layout.headerUserName.textContent = user?.fullName || user?.username || 'کاربر سیستم';
   }
 
@@ -119,10 +121,10 @@
     return window.innerWidth < 992;
   }
 
+  // از آنجا که سایدبار در هر دو حالت دسکتاپ و موبایل کشویی است،
+  // در صورت تغییر سایز مرورگر، وضعیت سایدبار برای تمیزی رابط کاربری ریست می‌شود.
   function ensureDesktopSidebarState() {
-    if (!isMobileView()) {
-      closeSidebar();
-    }
+    closeSidebar();
   }
 
   function showLoading() {
@@ -165,11 +167,18 @@
     layout.headerMount = qs('#headerMount');
     layout.sidebarMount = qs('#sidebarMount');
     layout.spaContainer = qs('#spaContainer');
-    layout.sidebar = qs('#appSidebar');
-    layout.sidebarOverlay = qs('#sidebarOverlay');
+    
+    // یابنده هوشمند سایدبار (اگر شناسه پیدا نشد، کلاس یا نگه‌دارنده اصلی را هدف قرار می‌دهد)
+    layout.sidebar = qs('#appSidebar') || qs('.sidebar') || qs('#sidebarMount');
+    layout.sidebarOverlay = qs('#sidebarOverlay') || qs('.sidebar-overlay');
+    
     layout.menuToggle = qs('#menuToggle');
-    layout.logoutBtn = qs('#logoutBtn');
-    layout.navLinks = qsa('[data-page]');
+    
+    // انتخاب تمام دکمه‌های خروج موجود در هدر و سایدبار
+    layout.logoutBtns = qsa('#logoutBtn, .logout-btn');
+    
+    // انتخاب تمام لینک‌های مسیریابی با هر دو مشخصه
+    layout.navLinks = qsa('[data-page], [data-route]');
     layout.headerUserName = qs('#headerUserName');
   }
 
@@ -206,8 +215,9 @@
   }
 
   function handleNavClick(link, event) {
-    const page = link.getAttribute('data-page');
+    const page = link.getAttribute('data-page') || link.getAttribute('data-route');
 
+    // اگر لینک فاقد پیوند صفحه باشد (مانند دکمه بازشوی تنظیمات)، رویداد پیش‌فرض متوقف نمی‌شود
     if (!page || !pages[page]) {
       return;
     }
@@ -220,11 +230,55 @@
       window.location.hash = page;
     }
 
-    if (isMobileView()) {
-      closeSidebar();
+    // بستن سایدبار بعد از کلیک بر روی منو در هر حالتی (موبایل و دسکتاپ)
+    closeSidebar();
+  }
+function bindLayoutEvents() {
+  if (eventsBound) return;
+
+  // همبرگری هدر (برای موبایل) و همبرگری سایدبار (برای دسکتاپ)
+  const toggles = qsa('#menuToggle, #innerToggle');
+  toggles.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // جلوگیری از بسته شدن آنی
+      if (isMobileView()) {
+        layout.sidebar.classList.toggle('show');
+        layout.sidebarOverlay.classList.toggle('show');
+      } else {
+        layout.sidebar.classList.toggle('expanded');
+      }
+    });
+  });
+
+  // بستن سایدبار با کلیک روی هر نقطه از صفحه
+  document.addEventListener('click', (e) => {
+    // اگر کلیک خارج از سایدبار بود، آن را ببند
+    if (layout.sidebar && !layout.sidebar.contains(e.target)) {
+      layout.sidebar.classList.remove('expanded');
+      layout.sidebar.classList.remove('show');
+      if (layout.sidebarOverlay) layout.sidebarOverlay.classList.remove('show');
     }
+  });
+
+  // کلیک روی لینک‌های منو
+  layout.navLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      handleNavClick(link, event);
+      // بعد از کلیک روی منو، سایدبار بسته شود (همان‌طور که خواستید)
+      layout.sidebar.classList.remove('expanded');
+      closeSidebar(); // برای موبایل
+    });
+  });
+
+  if (layout.logoutBtn) {
+    layout.logoutBtn.addEventListener('click', handleLogout);
   }
 
+  window.addEventListener('hashchange', handleRouteChange);
+  eventsBound = true;
+}
+
+/*
   function bindLayoutEvents() {
     if (eventsBound) return;
 
@@ -236,9 +290,10 @@
       layout.sidebarOverlay.addEventListener('click', closeSidebar);
     }
 
-    if (layout.logoutBtn) {
-      layout.logoutBtn.addEventListener('click', handleLogout);
-    }
+    // اتصال رویداد کلیک به تمام دکمه‌های خروج یافت‌شده
+    layout.logoutBtns.forEach((btn) => {
+      btn.addEventListener('click', handleLogout);
+    });
 
     layout.navLinks.forEach((link) => {
       link.addEventListener('click', (event) => handleNavClick(link, event));
@@ -249,7 +304,7 @@
 
     eventsBound = true;
   }
-
+*/
   async function initializeLayout() {
     if (isLayoutInitialized) {
       return;
@@ -336,11 +391,6 @@
   }
 
   async function bootstrap() {
-    /*
-      این بخش اصلاح اصلی است:
-      اگر layout-loader.js به اشتباه داخل index/register/forgot/reset لود شود،
-      دیگر باعث برگشت اجباری به index.html نمی‌شود.
-    */
     if (isPublicPage()) {
       return;
     }
