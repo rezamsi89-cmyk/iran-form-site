@@ -8,29 +8,26 @@
   </div>
 
   <nav class="sidebar-nav" aria-label="منوی اصلی">
-    <!-- لینک اصلی -->
-    <a class="sidebar-link active" href="#dashboard" data-route="dashboard">
+    <a
+      class="sidebar-link active"
+      href="#dashboard"
+      data-route="dashboard"
+      data-title="داشبورد"
+      data-subtitle="نمای کلی سامانه"
+    >
       <span class="sidebar-link-icon">📊</span>
       <span>داشبورد</span>
     </a>
 
-    <!-- گروه تنظیمات -->
-    <div class="sidebar-group">
-      <a class="sidebar-link" href="#" data-bs-toggle="collapse" data-bs-target="#settingsMenu">
-        <span class="sidebar-link-icon">⚙️</span>
-        <span>تنظیمات</span>
-        <i class="bi bi-chevron-down ms-auto sidebar-arrow"></i>
-      </a>
-      
-      <!-- زیرمنو -->
-      <div class="collapse show" id="settingsMenu">
-        <div class="sidebar-submenu">
-          <a class="sidebar-link" href="#user-management" data-route="user-management">
-            <span class="sidebar-link-icon">👥</span>
-            <span>مدیریت کاربران</span>
-          </a>
-        </div>
-      </div>
-    </div>
+    <a
+      class="sidebar-link"
+      href="#user-management"
+      data-route="user-management"
+      data-title="مدیریت کاربران"
+      data-subtitle="ایجاد، ویرایش و مدیریت کاربران سامانه"
+    >
+      <span class="sidebar-link-icon">👥</span>
+      <span>مدیریت کاربران</span>
+    </a>
   </nav>
 </div>
