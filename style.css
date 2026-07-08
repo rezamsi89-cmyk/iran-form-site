@@ -205,7 +205,7 @@ body.auth-body {
    ========================================================================== */
 :root {
   --sidebar-mini-width: 70px;
-  --sidebar-full-width: 260px;
+  --sidebar-full-width: 250px;
   --sidebar-bg: #ffffff;
 }
 
@@ -225,7 +225,7 @@ body.auth-body {
 }
 
 /* حالت باز شدن سایدبار (با کلاس یا هاور) */
-.sidebar:hover, 
+/* .sidebar:hover, */
 .sidebar.expanded {
   width: var(--sidebar-full-width);
   box-shadow: -5px 0 20px rgba(0,0,0,0.05);
@@ -266,9 +266,10 @@ body.auth-body {
   display: flex;
   align-items: center;
   height: 50px;
-  padding: 0 22px;
+  padding: 15px 23px; /* این padding تراز آیکون را حفظ می‌کند */
   color: var(--text-dark);
   text-decoration: none;
+  color: #333;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
