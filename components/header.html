@@ -1,7 +1,12 @@
 <header class="top-header app-header">
   <div class="container-fluid app-header-inner">
     <div class="app-header-right">
-      <button class="btn btn-link p-0 d-lg-none text-dark app-header-menu-btn" id="menuToggle" aria-label="باز کردن منو">
+      <button
+        class="btn btn-link p-0 d-lg-none text-dark app-header-menu-btn"
+        id="menuToggle"
+        type="button"
+        aria-label="باز کردن منو"
+      >
         <i class="bi bi-list fs-2"></i>
       </button>
 
@@ -26,14 +31,17 @@
           <span class="app-header-user-welcome">خوش آمدید</span>
           <span id="headerUserName" class="app-header-user-name">کاربر سیستم</span>
         </div>
-        <i class="bi bi-person-circle app-header-user-icon"></i>
+
+        <div class="app-header-user-avatar" aria-hidden="true">
+          <i class="bi bi-person"></i>
+        </div>
       </button>
 
       <ul class="dropdown-menu dropdown-menu-end app-header-dropdown" aria-labelledby="userMenuBtn">
         <li>
           <a class="dropdown-item app-header-dropdown-item" href="#profile">
             <i class="bi bi-person"></i>
-            <span>پروفایل کاربر</span>
+            <span>پروفایل</span>
           </a>
         </li>
         <li>
@@ -46,7 +54,7 @@
         <li>
           <a class="dropdown-item app-header-dropdown-item text-danger" href="#" id="logoutBtn">
             <i class="bi bi-box-arrow-right"></i>
-            <span>خروج از سامانه</span>
+            <span>خروج</span>
           </a>
         </li>
       </ul>
