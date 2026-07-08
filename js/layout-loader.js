@@ -233,50 +233,53 @@
     // بستن سایدبار بعد از کلیک بر روی منو در هر حالتی (موبایل و دسکتاپ)
     closeSidebar();
   }
+  
+  
 function bindLayoutEvents() {
-  if (eventsBound) return;
+  const sidebar = qs('#appSidebar');
+  const toggleBtn = qs('#sidebarToggle');
+  const overlay = qs('#sidebarOverlay');
 
-  // همبرگری هدر (برای موبایل) و همبرگری سایدبار (برای دسکتاپ)
-  const toggles = qsa('#menuToggle, #innerToggle');
-  toggles.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation(); // جلوگیری از بسته شدن آنی
-      if (isMobileView()) {
-        layout.sidebar.classList.toggle('show');
-        layout.sidebarOverlay.classList.toggle('show');
-      } else {
-        layout.sidebar.classList.toggle('expanded');
-      }
-    });
-  });
-
-  // بستن سایدبار با کلیک روی هر نقطه از صفحه
-  document.addEventListener('click', (e) => {
-    // اگر کلیک خارج از سایدبار بود، آن را ببند
-    if (layout.sidebar && !layout.sidebar.contains(e.target)) {
-      layout.sidebar.classList.remove('expanded');
-      layout.sidebar.classList.remove('show');
-      if (layout.sidebarOverlay) layout.sidebarOverlay.classList.remove('show');
+  // ۱. کنترل باز و بسته شدن با دکمه همبرگری
+  toggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sidebar.classList.toggle('expanded');
+    // اگر در موبایل هستید، کلاس show هم اضافه/حذف شود
+    if (window.innerWidth < 992) {
+      sidebar.classList.toggle('show');
+      overlay.classList.toggle('show');
+      document.body.classList.toggle('sidebar-open');
     }
   });
 
-  // کلیک روی لینک‌های منو
-  layout.navLinks.forEach((link) => {
-    link.addEventListener('click', (event) => {
-      handleNavClick(link, event);
-      // بعد از کلیک روی منو، سایدبار بسته شود (همان‌طور که خواستید)
-      layout.sidebar.classList.remove('expanded');
-      closeSidebar(); // برای موبایل
-    });
+  // ۲. بستن با کلیک روی هر جای صفحه (غیر از سایدبار)
+  document.addEventListener('click', (e) => {
+    const isClickInside = sidebar.contains(e.target);
+    
+    if (!isClickInside) {
+      sidebar.classList.remove('expanded');
+      sidebar.classList.remove('show');
+      overlay.classList.remove('show');
+      document.body.classList.remove('sidebar-open');
+    }
   });
 
-  if (layout.logoutBtn) {
-    layout.logoutBtn.addEventListener('click', handleLogout);
-  }
-
-  window.addEventListener('hashchange', handleRouteChange);
-  eventsBound = true;
+  // ۳. کلیک روی لینک‌ها (بسته شدن سایدبار بعد از انتخاب)
+  const navLinks = qsa('.sidebar-link');
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth < 992) {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+        document.body.classList.remove('sidebar-open');
+      }
+      // در دسکتاپ شاید نخواهید با کلیک روی هر لینک سایدبار بسته شود، 
+      // اگر می‌خواهید، خط زیر را فعال کنید:
+      // sidebar.classList.remove('expanded'); 
+    });
+  });
 }
+
 
 /*
   function bindLayoutEvents() {
