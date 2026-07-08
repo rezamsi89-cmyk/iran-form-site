@@ -200,13 +200,6 @@ body.auth-body {
 #headerUserName {
   color: var(--text-dark);
 }
-/* ==========================================================================
-   [MINI SIDEBAR SYSTEM]
-   ========================================================================== */
-:root {
-  --sidebar-full-width: 250px;
-  --sidebar-bg: #ffffff;
-}
 
 .sidebar {
   position: fixed;
