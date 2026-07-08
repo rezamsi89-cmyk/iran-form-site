@@ -201,10 +201,15 @@ body.auth-body {
   color: var(--text-dark);
 }
 
+/* ==========================================================================
+   [START SIDEBAR COMPONENT]
+   استایل‌های سایدبار و ناوبری (منو مخفی و زیرمنوها)
+   ========================================================================== */
+
 .sidebar {
   position: fixed;
   top: 0;
-  right: calc(-1 * var(--sidebar-width));
+  right: -280px; /* مخفی در حالت پیش‌فرض */
   width: var(--sidebar-width);
   height: 100vh;
   background-color: var(--sidebar-bg);
@@ -213,27 +218,37 @@ body.auth-body {
   transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-md);
   overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .sidebar.show {
   right: 0;
 }
 
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 1035;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+.sidebar-inner {
+  padding: 20px;
 }
 
-.sidebar-overlay.show {
-  opacity: 1;
-  visibility: visible;
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
 }
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.sidebar-title { font-size: 1.1rem; margin: 0; }
+.sidebar-subtitle { font-size: 0.75rem; color: var(--text-muted); margin: 0; }
 
 .sidebar-link {
   display: flex;
@@ -243,32 +258,61 @@ body.auth-body {
   color: var(--text-dark);
   text-decoration: none;
   border-radius: 10px;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   font-weight: 500;
-  border-right: 4px solid transparent;
-}
-
-.sidebar-link i {
-  font-size: 1.1rem;
-  flex-shrink: 0;
 }
 
 .sidebar-link:hover {
-  background-color: rgba(25, 135, 84, 0.04);
+  background-color: rgba(25, 135, 84, 0.06);
   color: var(--primary-color);
 }
 
 .sidebar-link.active {
-  background-color: rgba(25, 135, 84, 0.06);
-  color: var(--primary-color) !important;
+  background-color: rgba(25, 135, 84, 0.1);
+  color: var(--primary-color);
   font-weight: 700;
-  border-right-color: var(--primary-color);
 }
 
-.sidebar-link.text-danger:hover {
-  background-color: rgba(220, 53, 69, 0.08);
-  color: var(--danger-color) !important;
+.sidebar-link-icon { font-size: 1.2rem; }
+
+/* استایل زیرمنو */
+.sidebar-submenu {
+  padding-right: 25px; /* تورفتگی زیرمنو */
+  margin-top: 5px;
 }
+
+.sidebar-submenu .sidebar-link {
+  font-size: 0.9rem;
+  padding: 10px 16px;
+  opacity: 0.8;
+}
+
+.sidebar-arrow {
+  font-size: 0.8rem;
+  transition: transform 0.3s;
+}
+
+/* چرخش آیکون هنگام باز شدن */
+.sidebar-link[aria-expanded="true"] .sidebar-arrow {
+  transform: rotate(180deg);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1035;
+  display: none;
+}
+
+.sidebar-overlay.show {
+  display: block;
+}
+
+/* ==========================================================================
+   [END SIDEBAR COMPONENT]
+   ========================================================================== */
+
 
 .content-area-dynamic {
   margin-top: var(--header-height);
@@ -482,9 +526,10 @@ body.sidebar-open {
   }
 }
 
-
-/* ----------   Style for Menu and Icon Left Header ----------    */
-
+/* ==========================================================================
+   ----------   استایلهای مربوط به هدر سامانه ---------
+   ========================================================================== */
+   
 .app-header-inner {
   height: 100%;
   display: flex;
