@@ -3,6 +3,8 @@
 
   const API_BASE_URL = 'YOUR_API_BASE_URL_HERE';
 
+  const PUBLIC_PAGES = ['index.html', 'register.html', 'forgot.html', 'reset.html'];
+
   const pages = {
     dashboard: 'pages/dashboard.html',
     'user-management': 'pages/user-management.html',
@@ -48,6 +50,15 @@
     }
   }
 
+  function getCurrentFileName() {
+    return window.location.pathname.split('/').pop() || 'index.html';
+  }
+
+  function isPublicPage() {
+    const currentPage = getCurrentFileName();
+    return PUBLIC_PAGES.includes(currentPage);
+  }
+
   function getCurrentPageKey() {
     const hash = window.location.hash.replace('#', '').trim();
     if (!hash) return 'dashboard';
@@ -63,6 +74,7 @@
 
   function updateHeaderUser() {
     if (!layout.headerUserName) return;
+
     const user = getUser();
     layout.headerUserName.textContent = user?.fullName || user?.username || 'کاربر سیستم';
   }
@@ -93,7 +105,9 @@
 
   function toggleSidebar() {
     if (!layout.sidebar) return;
+
     const isOpen = layout.sidebar.classList.contains('show');
+
     if (isOpen) {
       closeSidebar();
     } else {
@@ -139,6 +153,7 @@
     }
 
     const response = await fetch(filePath, { cache: 'no-store' });
+
     if (!response.ok) {
       throw new Error(`Failed to load layout file: ${filePath}`);
     }
@@ -165,10 +180,13 @@
   function clearAuth() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('isLoggedIn');
   }
 
   async function handleLogout(event) {
-    event.preventDefault();
+    if (event) {
+      event.preventDefault();
+    }
 
     try {
       const token = getToken();
@@ -291,6 +309,7 @@
 
     try {
       const token = getToken();
+
       if (!token) {
         clearAuth();
         redirectToLogin();
@@ -317,6 +336,15 @@
   }
 
   async function bootstrap() {
+    /*
+      این بخش اصلاح اصلی است:
+      اگر layout-loader.js به اشتباه داخل index/register/forgot/reset لود شود،
+      دیگر باعث برگشت اجباری به index.html نمی‌شود.
+    */
+    if (isPublicPage()) {
+      return;
+    }
+
     if (!enforceAuth()) return;
 
     try {
