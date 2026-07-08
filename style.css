@@ -485,163 +485,136 @@ body.sidebar-open {
 
 
 
-/* ==========================================================================
-   اضافات هدر و تطبیق با سایدبار (Header & Sidebar Alignments)
-   ========================================================================== */
-
-.main-header {
-  background-color: var(--header-bg);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-speed) ease;
-}
-
-.header-inner {
+.app-header-inner {
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.header-brand-link {
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.app-header-brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  color: var(--text-dark);
   text-decoration: none;
 }
 
-/* نماد لوگوی سمت راست هدر */
-.header-logo-icon {
+.app-header-brand-badge {
   width: 42px;
   height: 42px;
-  background-color: rgba(25, 135, 84, 0.08); /* رنگ سبز کم‌رنگ پس‌زمینه آیکون */
+  border-radius: 12px;
+  background-color: rgba(25, 135, 84, 0.08);
   color: var(--primary-color);
-  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35rem;
-  box-shadow: 0 4px 10px rgba(25, 135, 84, 0.1);
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
-.header-brand-text {
+.app-header-brand-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
-.header-title {
+.app-header-title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-dark);
 }
 
-.header-subtitle {
-  margin: 2px 0 0 0;
-  font-size: 0.75rem;
+.app-header-subtitle {
+  margin: 0;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
-/* کنترل دکمه تریگر کاربر */
-.header-user-trigger {
-  background: none;
+.app-header-user {
   border: none;
-  padding: 4px 8px;
+  background: transparent;
   display: flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  border-radius: var(--border-radius-md);
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
   transition: background-color var(--transition-speed) ease;
 }
 
-.header-user-trigger:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+.app-header-user:hover {
+  background-color: rgba(25, 135, 84, 0.04);
 }
 
-.header-user-text {
+.app-header-user-text {
   flex-direction: column;
   align-items: flex-end;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
-.header-user-welcome {
+.app-header-user-welcome {
   font-size: 0.72rem;
   color: var(--text-muted);
 }
 
-.header-user-name {
-  font-size: 0.88rem;
+.app-header-user-name {
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-dark);
 }
 
-/* آیکون گرد کاربر */
-.header-user-avatar {
-  font-size: 2.1rem;
-  color: #a0aec0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: color var(--transition-speed) ease;
+.app-header-user-icon {
+  font-size: 2rem;
+  color: #6c757d;
+  line-height: 1;
 }
 
-.header-user-trigger:hover .header-user-avatar {
-  color: var(--primary-color);
-}
-
-/* استایل‌دهی دراپ‌داون اختصاصی هدر */
-.header-user-menu {
+.app-header-dropdown {
+  min-width: 220px;
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
   padding: 8px;
-  min-width: 210px;
-  margin-top: 10px !important;
 }
 
-.header-user-menu-item {
+.app-header-dropdown-item {
   display: flex;
   align-items: center;
   gap: 10px;
+  border-radius: 8px;
   padding: 10px 12px;
-  color: var(--text-dark);
-  font-size: 0.88rem;
-  border-radius: var(--border-radius-sm);
-  transition: all var(--transition-speed) ease;
+  font-size: 0.9rem;
 }
 
-.header-user-menu-item i {
-  font-size: 1.1rem;
-  color: var(--text-muted);
-  transition: color var(--transition-speed) ease;
-}
-
-.header-user-menu-item:hover {
+.app-header-dropdown-item:hover {
   background-color: rgba(25, 135, 84, 0.05);
   color: var(--primary-color);
 }
 
-.header-user-menu-item:hover i {
-  color: var(--primary-color);
+.app-header-menu-btn {
+  text-decoration: none;
 }
 
-/* آیتم خروج */
-.header-user-logout {
-  color: var(--danger-color);
+@media (max-width: 576px) {
+  .app-header-brand-badge {
+    width: 38px;
+    height: 38px;
+    font-size: 0.85rem;
+  }
+
+  .app-header-title {
+    font-size: 0.95rem;
+  }
+
+  .app-header-subtitle {
+    font-size: 0.72rem;
+  }
 }
 
-.header-user-logout i {
-  color: var(--danger-color);
-}
-
-.header-user-logout:hover {
-  background-color: rgba(220, 53, 69, 0.06);
-  color: var(--danger-color);
-}
-
-.header-user-logout:hover i {
-  color: var(--danger-color);
-}
-
-.header-user-divider {
-  margin: 6px 0;
-  border-color: var(--border-color);
-  opacity: 1;
-}
