@@ -1,49 +1,36 @@
-<div id="sidebarOverlay" class="sidebar-overlay"></div>
-
-<aside id="appSidebar" class="sidebar bg-white border-start shadow-sm">
-  <div class="d-flex flex-column h-100">
-    <div class="p-3 border-bottom">
-      <div class="fw-bold fs-5 text-primary">منوی سامانه</div>
-      <div class="small text-muted mt-1">مدیریت و دسترسی سریع</div>
-    </div>
-
-    <nav class="flex-grow-1 p-2">
-      <a href="#dashboard" data-page="dashboard" class="nav-link sidebar-link rounded mb-1">
-        <i class="bi bi-speedometer2 me-2"></i>
-        <span>داشبورد</span>
-      </a>
-
-      <a href="#user-management" data-page="user-management" class="nav-link sidebar-link rounded mb-1">
-        <i class="bi bi-people me-2"></i>
-        <span>مدیریت کاربران</span>
-      </a>
-
-      <a href="#profile" data-page="profile" class="nav-link sidebar-link rounded mb-1">
-        <i class="bi bi-person-circle me-2"></i>
-        <span>پروفایل</span>
-      </a>
-
-      <a href="#files" data-page="files" class="nav-link sidebar-link rounded mb-1">
-        <i class="bi bi-folder2-open me-2"></i>
-        <span>فایل‌ها</span>
-      </a>
-
-      <a href="#reports" data-page="reports" class="nav-link sidebar-link rounded mb-1">
-        <i class="bi bi-bar-chart-line me-2"></i>
-        <span>گزارش‌ها</span>
-      </a>
-
-      <a href="#settings" data-page="settings" class="nav-link sidebar-link rounded mb-1">
-        <i class="bi bi-gear me-2"></i>
-        <span>تنظیمات</span>
-      </a>
-    </nav>
-
-    <div class="p-2 border-top">
-      <a href="javascript:void(0)" id="logoutBtn" class="nav-link sidebar-link text-danger rounded">
-        <i class="bi bi-box-arrow-right me-2"></i>
-        <span>خروج</span>
-      </a>
+<div class="sidebar-inner">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">پنل</div>
+    <div>
+      <h2 class="sidebar-title">مدیریت</h2>
+      <p class="sidebar-subtitle">داشبورد سازمانی</p>
     </div>
   </div>
-</aside>
+
+  <nav class="sidebar-nav" aria-label="منوی اصلی">
+    <!-- لینک اصلی -->
+    <a class="sidebar-link active" href="#dashboard" data-route="dashboard">
+      <span class="sidebar-link-icon">📊</span>
+      <span>داشبورد</span>
+    </a>
+
+    <!-- گروه تنظیمات -->
+    <div class="sidebar-group">
+      <a class="sidebar-link" href="#" data-bs-toggle="collapse" data-bs-target="#settingsMenu">
+        <span class="sidebar-link-icon">⚙️</span>
+        <span>تنظیمات</span>
+        <i class="bi bi-chevron-down ms-auto sidebar-arrow"></i>
+      </a>
+      
+      <!-- زیرمنو -->
+      <div class="collapse show" id="settingsMenu">
+        <div class="sidebar-submenu">
+          <a class="sidebar-link" href="#user-management" data-route="user-management">
+            <span class="sidebar-link-icon">👥</span>
+            <span>مدیریت کاربران</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</div>
