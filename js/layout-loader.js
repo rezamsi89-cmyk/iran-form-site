@@ -124,6 +124,72 @@
     });
   }
 
+  function getDefaultSidebarMenuFallback() {
+    return [
+      {
+        id: 'fallback-dashboard',
+        title: 'داشبورد',
+        route: 'dashboard',
+        item_type: 'link',
+        icon: 'bi bi-grid-1x2-fill',
+        sort_order: 1,
+        parent_id: null,
+        is_active: 1,
+        children: []
+      },
+      {
+        id: 'fallback-settings-group',
+        title: 'تنظیمات',
+        route: '',
+        item_type: 'group',
+        icon: 'bi bi-gear-fill',
+        sort_order: 2,
+        parent_id: null,
+        is_active: 1,
+        children: [
+          {
+            id: 'fallback-settings-sidebar-menu',
+            title: 'مدیریت منوی سایدبار',
+            route: 'settings-sidebar-menu',
+            item_type: 'link',
+            icon: 'bi bi-list-ul',
+            sort_order: 1,
+            parent_id: 'fallback-settings-group',
+            is_active: 1,
+            children: []
+          }
+        ]
+      },
+      {
+        id: 'fallback-users',
+        title: 'کاربران',
+        route: 'users',
+        item_type: 'link',
+        icon: 'bi bi-people-fill',
+        sort_order: 3,
+        parent_id: null,
+        is_active: 1,
+        children: []
+      },
+      {
+        id: 'fallback-logout',
+        title: 'خروج',
+        route: 'logout',
+        item_type: 'link',
+        icon: 'bi bi-box-arrow-right',
+        sort_order: 4,
+        parent_id: null,
+        is_active: 1,
+        target: '_self',
+        children: []
+      }
+    ];
+  }
+
+  function isUsableSidebarMenu(items) {
+    return Array.isArray(items) && items.length > 0;
+  }
+
   async function fetchSidebarMenu() {
     const response = await fetch(`${API_BASE_URL}/api/sidebar-menu`, {
       method: 'GET',
@@ -135,25 +201,31 @@
     }
 
     const result = await response.json();
-    return Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
+    const items = Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
+
+    return isUsableSidebarMenu(items) ? items : getDefaultSidebarMenuFallback();
   }
 
   function buildSidebarTree(items) {
     const map = new Map();
     const roots = [];
 
-    items.forEach((item) => {
-      map.set(Number(item.id), {
+    items.forEach((item, index) => {
+      const normalizedId = item?.id ?? `fallback-${index}`;
+      map.set(String(normalizedId), {
         ...item,
-        children: []
+        id: normalizedId,
+        children: Array.isArray(item.children) ? item.children : []
       });
     });
 
     map.forEach((item) => {
-      const parentId = item.parent_id == null ? null : Number(item.parent_id);
+      const parentId = item.parent_id == null || item.parent_id === '' ? null : String(item.parent_id);
 
       if (parentId && map.has(parentId)) {
-        map.get(parentId).children.push(item);
+        const parent = map.get(parentId);
+        parent.children = Array.isArray(parent.children) ? parent.children : [];
+        parent.children.push(item);
       } else {
         roots.push(item);
       }
@@ -194,62 +266,64 @@
   }
 
   function renderSidebarMenuItems(items, currentPageKey) {
-    return items.map((item) => {
-      const itemType = item.item_type;
-      const title = escapeHtml(item.title || '');
-      const icon = item.icon ? `<i class="${escapeHtml(item.icon)}"></i>` : '';
-      const isGroup = itemType === 'group';
-      const route = normalizeRoute(item.route);
-      const isActive = route && route === currentPageKey;
-      const childActive = hasActiveChild(item, currentPageKey);
+    return items
+      .filter((item) => Number(item.is_active ?? 1) !== 0)
+      .map((item) => {
+        const itemType = item.item_type;
+        const title = escapeHtml(item.title || '');
+        const icon = item.icon ? `<i class="${escapeHtml(item.icon)}"></i>` : '';
+        const isGroup = itemType === 'group';
+        const route = normalizeRoute(item.route);
+        const isActive = route && route === currentPageKey;
+        const childActive = hasActiveChild(item, currentPageKey);
 
-      if (isGroup) {
-        const groupId = `sidebar-group-${item.id}`;
-        const expanded = childActive ? 'true' : 'false';
-        const showClass = childActive ? 'show' : '';
-        const childHtml = renderSidebarMenuItems(item.children || [], currentPageKey);
+        if (isGroup) {
+          const groupId = `sidebar-group-${String(item.id).replace(/[^a-zA-Z0-9_-]/g, '')}`;
+          const expanded = childActive ? 'true' : 'false';
+          const showClass = childActive ? 'show' : '';
+          const childHtml = renderSidebarMenuItems(item.children || [], currentPageKey);
+
+          return `
+            <li class="nav-item sidebar-group">
+              <button
+                class="nav-link sidebar-group-toggle ${childActive ? 'active' : ''}"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#${groupId}"
+                aria-expanded="${expanded}"
+                aria-controls="${groupId}"
+              >
+                <span class="sidebar-link-content">
+                  ${icon}
+                  <span>${title}</span>
+                </span>
+                <span class="sidebar-group-arrow">⌄</span>
+              </button>
+              <div class="collapse ${showClass}" id="${groupId}">
+                <ul class="nav flex-column ms-3">
+                  ${childHtml}
+                </ul>
+              </div>
+            </li>
+          `;
+        }
 
         return `
-          <li class="nav-item sidebar-group">
-            <button
-              class="nav-link sidebar-group-toggle ${childActive ? 'active' : ''}"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#${groupId}"
-              aria-expanded="${expanded}"
-              aria-controls="${groupId}"
+          <li class="nav-item">
+            <a
+              href="#${escapeHtml(route || '')}"
+              class="nav-link ${isActive ? 'active' : ''} ${route === 'logout' ? 'text-danger' : ''}"
+              data-route="${escapeHtml(route || '')}"
+              target="${escapeHtml(item.target || '_self')}"
             >
               <span class="sidebar-link-content">
                 ${icon}
                 <span>${title}</span>
               </span>
-              <span class="sidebar-group-arrow">⌄</span>
-            </button>
-            <div class="collapse ${showClass}" id="${groupId}">
-              <ul class="nav flex-column ms-3">
-                ${childHtml}
-              </ul>
-            </div>
+            </a>
           </li>
         `;
-      }
-
-      return `
-        <li class="nav-item">
-          <a
-            href="#${escapeHtml(route || '')}"
-            class="nav-link ${isActive ? 'active' : ''}"
-            data-route="${escapeHtml(route || '')}"
-            target="${escapeHtml(item.target || '_self')}"
-          >
-            <span class="sidebar-link-content">
-              ${icon}
-              <span>${title}</span>
-            </span>
-          </a>
-        </li>
-      `;
-    }).join('');
+      }).join('');
   }
 
   function bindSidebarGroupToggles() {
@@ -288,6 +362,13 @@
           return;
         }
 
+        if (route === 'logout') {
+          event.preventDefault();
+          localStorage.removeItem('token');
+          window.location.href = '/';
+          return;
+        }
+
         event.preventDefault();
         window.location.hash = `#${route}`;
       });
@@ -296,10 +377,13 @@
 
   function renderSidebarMenu() {
     if (!els.sidebarNavMenu) return;
-    if (!state.sidebarMenuCache) return;
+
+    const menuItems = isUsableSidebarMenu(state.sidebarMenuCache)
+      ? state.sidebarMenuCache
+      : getDefaultSidebarMenuFallback();
 
     const currentPageKey = getCurrentPageKey();
-    const tree = buildSidebarTree(state.sidebarMenuCache);
+    const tree = buildSidebarTree(menuItems);
     els.sidebarNavMenu.innerHTML = renderSidebarMenuItems(tree, currentPageKey);
 
     bindSidebarGroupToggles();
@@ -315,18 +399,26 @@
 
     try {
       if (!state.sidebarMenuLoaded || forceReload) {
-        state.sidebarMenuCache = await fetchSidebarMenu();
+        try {
+          state.sidebarMenuCache = await fetchSidebarMenu();
+        } catch (error) {
+          console.warn('[layout-loader] Sidebar API unavailable. Using fallback menu.', error);
+          state.sidebarMenuCache = getDefaultSidebarMenuFallback();
+        }
+
+        if (!isUsableSidebarMenu(state.sidebarMenuCache)) {
+          console.warn('[layout-loader] Sidebar menu empty. Using fallback menu.');
+          state.sidebarMenuCache = getDefaultSidebarMenuFallback();
+        }
+
         state.sidebarMenuLoaded = true;
       }
 
       renderSidebarMenu();
     } catch (error) {
-      console.error(error);
-      els.sidebarNavMenu.innerHTML = `
-        <li class="nav-item">
-          <span class="nav-link text-danger">خطا در بارگذاری منوی سایدبار</span>
-        </li>
-      `;
+      console.error('[layout-loader] Failed to render sidebar menu. Using emergency fallback.', error);
+      state.sidebarMenuCache = getDefaultSidebarMenuFallback();
+      renderSidebarMenu();
     } finally {
       if (els.sidebarMenuLoading) {
         els.sidebarMenuLoading.classList.add('d-none');
