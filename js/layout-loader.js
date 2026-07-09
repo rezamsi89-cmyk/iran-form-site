@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const API_BASE_URL = 'YOUR_API_BASE_URL_HERE';
+  const API_BASE_URL = 'https://iran-form-api.reza-msi89.workers.dev';
 
   const PUBLIC_PAGES = ['index.html', 'register.html', 'forgot.html', 'reset.html'];
 
@@ -21,7 +21,8 @@
     sidebar: null,
     sidebarOverlay: null,
     menuToggle: null,
-    logoutBtn: null,
+    sidebarToggleBtn: null,
+    logoutBtns: [],
     navLinks: [],
     headerUserName: null
   };
@@ -55,8 +56,7 @@
   }
 
   function isPublicPage() {
-    const currentPage = getCurrentFileName();
-    return PUBLIC_PAGES.includes(currentPage);
+    return PUBLIC_PAGES.includes(getCurrentFileName());
   }
 
   function getCurrentPageKey() {
@@ -65,9 +65,13 @@
     return Object.prototype.hasOwnProperty.call(pages, hash) ? hash : 'dashboard';
   }
 
+  function isMobileView() {
+    return window.innerWidth < 992;
+  }
+
   function setActiveMenu(pageKey) {
     layout.navLinks.forEach((link) => {
-      const linkPage = link.getAttribute('data-page');
+      const linkPage = link.getAttribute('data-page') || link.getAttribute('data-route');
       link.classList.toggle('active', linkPage === pageKey);
     });
   }
@@ -106,23 +110,78 @@
   function toggleSidebar() {
     if (!layout.sidebar) return;
 
-    const isOpen = layout.sidebar.classList.contains('show');
-
-    if (isOpen) {
+    if (layout.sidebar.classList.contains('show')) {
       closeSidebar();
     } else {
       openSidebar();
     }
   }
 
-  function isMobileView() {
-    return window.innerWidth < 992;
+  function setDesktopExpanded() {
+    document.body.classList.remove('sidebar-desktop-mini', 'sidebar-hover-expanded');
+    document.body.classList.add('sidebar-desktop-expanded');
+  }
+
+  function setDesktopMini() {
+    document.body.classList.remove('sidebar-desktop-expanded', 'sidebar-hover-expanded');
+    document.body.classList.add('sidebar-desktop-mini');
+  }
+
+  function isDesktopMini() {
+    return document.body.classList.contains('sidebar-desktop-mini');
+  }
+
+  function isDesktopExpanded() {
+    return document.body.classList.contains('sidebar-desktop-expanded');
+  }
+
+  function toggleDesktopSidebarMode() {
+    if (isDesktopExpanded()) {
+      setDesktopMini();
+    } else {
+      setDesktopExpanded();
+    }
+  }
+
+  function handleSidebarToggleAction() {
+    if (isMobileView()) {
+      toggleSidebar();
+    } else {
+      toggleDesktopSidebarMode();
+    }
   }
 
   function ensureDesktopSidebarState() {
-    if (!isMobileView()) {
+    if (isMobileView()) {
       closeSidebar();
+      document.body.classList.remove('sidebar-hover-expanded');
+      return;
     }
+
+    closeSidebar();
+
+    if (
+      !document.body.classList.contains('sidebar-desktop-expanded') &&
+      !document.body.classList.contains('sidebar-desktop-mini')
+    ) {
+      setDesktopExpanded();
+    }
+  }
+
+  function bindSidebarHoverEvents() {
+    if (!layout.sidebar) return;
+
+    layout.sidebar.addEventListener('mouseenter', () => {
+      if (!isMobileView() && isDesktopMini()) {
+        document.body.classList.add('sidebar-hover-expanded');
+      }
+    });
+
+    layout.sidebar.addEventListener('mouseleave', () => {
+      if (!isMobileView() && isDesktopMini()) {
+        document.body.classList.remove('sidebar-hover-expanded');
+      }
+    });
   }
 
   function showLoading() {
@@ -165,11 +224,15 @@
     layout.headerMount = qs('#headerMount');
     layout.sidebarMount = qs('#sidebarMount');
     layout.spaContainer = qs('#spaContainer');
-    layout.sidebar = qs('#appSidebar');
-    layout.sidebarOverlay = qs('#sidebarOverlay');
+
+    layout.sidebar = qs('#appSidebar') || qs('.sidebar') || qs('#sidebarMount');
+    layout.sidebarOverlay = qs('#sidebarOverlay') || qs('.sidebar-overlay');
+
     layout.menuToggle = qs('#menuToggle');
-    layout.logoutBtn = qs('#logoutBtn');
-    layout.navLinks = qsa('[data-page]');
+    layout.sidebarToggleBtn = qs('#sidebarToggleBtn');
+
+    layout.logoutBtns = qsa('#logoutBtn, .logout-btn');
+    layout.navLinks = qsa('[data-page], [data-route]', layout.sidebar || document);
     layout.headerUserName = qs('#headerUserName');
   }
 
@@ -206,7 +269,7 @@
   }
 
   function handleNavClick(link, event) {
-    const page = link.getAttribute('data-page');
+    const page = link.getAttribute('data-page') || link.getAttribute('data-route');
 
     if (!page || !pages[page]) {
       return;
@@ -229,16 +292,49 @@
     if (eventsBound) return;
 
     if (layout.menuToggle) {
-      layout.menuToggle.addEventListener('click', toggleSidebar);
+      layout.menuToggle.addEventListener('click', handleSidebarToggleAction);
+    }
+
+    if (layout.sidebarToggleBtn) {
+      layout.sidebarToggleBtn.addEventListener('click', handleSidebarToggleAction);
     }
 
     if (layout.sidebarOverlay) {
       layout.sidebarOverlay.addEventListener('click', closeSidebar);
     }
 
-    if (layout.logoutBtn) {
-      layout.logoutBtn.addEventListener('click', handleLogout);
-    }
+    document.addEventListener('click', (event) => {
+      if (!layout.sidebar) return;
+
+      if (isMobileView()) {
+        const isOpen = layout.sidebar.classList.contains('show');
+
+        if (
+          isOpen &&
+          !layout.sidebar.contains(event.target) &&
+          !(
+            (layout.menuToggle && layout.menuToggle.contains(event.target)) ||
+            (layout.sidebarToggleBtn && layout.sidebarToggleBtn.contains(event.target))
+          )
+        ) {
+          closeSidebar();
+        }
+
+        return;
+      }
+
+      if (
+        isDesktopMini() &&
+        document.body.classList.contains('sidebar-hover-expanded') &&
+        !layout.sidebar.contains(event.target)
+      ) {
+        document.body.classList.remove('sidebar-hover-expanded');
+      }
+    });
+
+    layout.logoutBtns.forEach((btn) => {
+      btn.addEventListener('click', handleLogout);
+    });
 
     layout.navLinks.forEach((link) => {
       link.addEventListener('click', (event) => handleNavClick(link, event));
@@ -246,6 +342,8 @@
 
     window.addEventListener('resize', ensureDesktopSidebarState);
     window.addEventListener('hashchange', handleRouteChange);
+
+    bindSidebarHoverEvents();
 
     eventsBound = true;
   }
@@ -336,11 +434,6 @@
   }
 
   async function bootstrap() {
-    /*
-      این بخش اصلاح اصلی است:
-      اگر layout-loader.js به اشتباه داخل index/register/forgot/reset لود شود،
-      دیگر باعث برگشت اجباری به index.html نمی‌شود.
-    */
     if (isPublicPage()) {
       return;
     }
