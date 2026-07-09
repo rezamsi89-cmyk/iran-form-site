@@ -1,6 +1,7 @@
 <header class="top-header app-header">
   <div class="container-fluid app-header-inner">
     <div class="app-header-right">
+      <!-- دکمه منوی موبایل -->
       <button
         class="btn btn-link p-0 d-lg-none text-dark app-header-menu-btn"
         id="menuToggle"
@@ -52,7 +53,8 @@
         </li>
         <li><hr class="dropdown-divider"></li>
         <li>
-          <a class="dropdown-item app-header-dropdown-item text-danger" href="#" id="logoutBtn">
+          <!-- اصلاح شد: استفاده از دیتا-اکشن به جای ID تکراری -->
+          <a class="dropdown-item app-header-dropdown-item text-danger" href="#" data-action="logout">
             <i class="bi bi-box-arrow-right"></i>
             <span>خروج</span>
           </a>
