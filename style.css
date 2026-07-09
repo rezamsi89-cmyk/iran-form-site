@@ -201,7 +201,7 @@ body.auth-body {
   color: var(--text-dark);
 }
 
-/* ===== [SIDEBAR SECTION - REPLACED / UPDATED] ===== */
+/* ===== [SIDEBAR SECTION] ===== */
 .sidebar {
   position: fixed;
   top: 0;
@@ -219,7 +219,6 @@ body.auth-body {
   overflow: hidden;
 }
 
-/* ===== [ADDED INNER SIDEBAR SCROLL SUPPORT] ===== */
 .sidebar-inner {
   height: 100%;
   display: flex;
@@ -230,18 +229,15 @@ body.auth-body {
 .sidebar-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center; /* تراز وسط برای دکمه همبرگری */
   gap: 12px;
-  padding: 14px 14px 10px 14px;
+  padding: 14px;
   border-bottom: 1px solid #f1f3f5;
   flex-shrink: 0;
 }
 
 .sidebar-brand {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: none !important; /* حذف برند و لوگو طبق خواست کاربر */
 }
 
 .sidebar-brand-badge {
@@ -331,7 +327,7 @@ body.auth-body {
   padding: 10px 14px;
   color: #4f5b66;
   text-decoration: none;
-  border-radius: 999px;
+  border-radius: 8px; /* تغییر یافته از 999px به 8px جهت همسان‌سازی با هدر */
   transition: all 0.25s ease;
   font-weight: 700;
   border-right: none;
@@ -340,11 +336,12 @@ body.auth-body {
 .sidebar-link::after {
   content: "";
   position: absolute;
-  top: 8px;
-  bottom: 8px;
+  top: 0; /* چسبیدن نشانگر به بالا و پایین آیتم */
+  bottom: 0;
   right: 0;
   width: 4px;
-  border-radius: 999px;
+  border-top-right-radius: 8px; /* انحنای منطبق با انحنای دکمه */
+  border-bottom-right-radius: 8px;
   background: transparent;
   transition: all 0.25s ease;
 }
@@ -400,7 +397,7 @@ body.auth-body {
   color: #7b8790;
   padding-right: 52px;
   padding-left: 14px;
-  border-radius: 999px;
+  border-radius: 8px; /* تغییر یافته به 8px جهت هماهنگی */
 }
 
 .sidebar-submenu .sidebar-link i {
@@ -436,7 +433,7 @@ body.auth-body {
   visibility: visible;
 }
 
-/* ===== [CONTENT AREA - UPDATED FOR SIDEBAR STATES] ===== */
+/* ===== [CONTENT AREA] ===== */
 .sidebar-footer-area {
   flex: 0 0 auto;
   padding-top: 0;
@@ -605,7 +602,7 @@ body.sidebar-open {
 /* ==========================================================================
    ۶. ریسپانسیو
    ========================================================================== */
-/* ===== [RESPONSIVE DESKTOP SIDEBAR STATES - REPLACED / UPDATED] ===== */
+/* ===== [RESPONSIVE DESKTOP SIDEBAR STATES] ===== */
 @media (min-width: 992px) {
   .sidebar {
     right: 0;
@@ -649,19 +646,16 @@ body.sidebar-open {
   body.sidebar-desktop-mini .sidebar-brand-text,
   body.sidebar-desktop-mini .sidebar-link-text,
   body.sidebar-desktop-mini .sidebar-link-arrow {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+    display: none !important; /* خروج کامل از جریان لایوت جهت تراز شدن آیکن‌ها */
   }
 
   body.sidebar-desktop-mini .sidebar-top {
     justify-content: center;
-    padding-right: 10px;
-    padding-left: 10px;
+    padding: 14px 10px;
   }
 
   body.sidebar-desktop-mini .sidebar-brand {
-    display: none;
+    display: none !important;
   }
 
   body.sidebar-desktop-mini .sidebar-toggle-btn {
@@ -670,13 +664,20 @@ body.sidebar-open {
 
   body.sidebar-desktop-mini .sidebar-link {
     justify-content: center;
-    padding-right: 0;
-    padding-left: 0;
-    border-radius: 16px;
+    padding: 10px 0;
+    border-radius: 8px; /* هماهنگ با انحنای جدید */
+  }
+
+  body.sidebar-desktop-mini .sidebar-link i {
+    margin: 0 !important;
+    width: auto !important;
+    min-width: auto !important;
   }
 
   body.sidebar-desktop-mini .sidebar-link::after {
-    right: 2px;
+    right: 0px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
   }
 
   body.sidebar-desktop-mini .sidebar-submenu {
@@ -685,28 +686,35 @@ body.sidebar-open {
 
   /* ===== [ADDED MINI + HOVER EXPANDED RESTORE] ===== */
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-brand {
-    display: flex;
+    display: none !important; /* برند همچنان در تمام حالات مخفی بماند */
   }
 
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-top {
-    justify-content: space-between;
-    padding-right: 14px;
-    padding-left: 14px;
+    justify-content: center; /* دکمه همبرگری در مرکز بماند */
+    padding: 14px;
   }
 
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-brand-text,
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link-text,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-brand-text {
+    display: none !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link-text {
+    display: block !important;
+  }
+
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link-arrow {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
+    display: inline-block !important;
   }
 
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link {
     justify-content: flex-start;
-    padding-right: 14px;
-    padding-left: 14px;
-    border-radius: 999px;
+    padding: 10px 14px;
+    border-radius: 8px;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link i {
+    width: 24px !important;
+    min-width: 24px !important;
   }
 
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-submenu {
@@ -714,7 +722,7 @@ body.sidebar-open {
   }
 }
 
-/* ===== [RESPONSIVE MOBILE SIDEBAR - REPLACED / UPDATED] ===== */
+/* ===== [RESPONSIVE MOBILE SIDEBAR] ===== */
 @media (max-width: 991.98px) {
   .content-area-dynamic {
     margin-right: 0;
@@ -840,7 +848,6 @@ body.sidebar-open {
   color: var(--text-dark);
 }
 
-/* ظرف دور آیکون کاربر - مینیمال و ظریف */
 .app-header-user-avatar {
   width: 38px;
   height: 38px;
@@ -855,14 +862,12 @@ body.sidebar-open {
   transition: all var(--transition-speed) ease;
 }
 
-/* افکت هاور روی کل بخش کاربر */
 .app-header-user:hover .app-header-user-avatar {
   background-color: rgba(25, 135, 84, 0.1);
   color: var(--primary-color);
   border-color: rgba(25, 135, 84, 0.2);
 }
 
-/* اگر بخواهیم کمی مدرن‌تر باشد، می‌توانیم به جای آیکون، سایه بسیار محوی بدهیم */
 .app-header-user-avatar {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
