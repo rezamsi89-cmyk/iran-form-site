@@ -213,8 +213,8 @@ body.auth-body {
   z-index: 1040;
   transition:
     right 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    width 0.25s ease,
-    box-shadow 0.25s ease;
+    width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.28s ease;
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
@@ -229,15 +229,16 @@ body.auth-body {
 .sidebar-top {
   display: flex;
   align-items: center;
-  justify-content: center; /* تراز وسط برای دکمه همبرگری */
+  justify-content: center;
   gap: 12px;
   padding: 14px;
   border-bottom: 1px solid #f1f3f5;
   flex-shrink: 0;
+  transition: padding 0.28s ease, gap 0.28s ease;
 }
 
 .sidebar-brand {
-  display: none !important; /* حذف برند و لوگو طبق خواست کاربر */
+  display: none !important;
 }
 
 .sidebar-brand-badge {
@@ -327,23 +328,29 @@ body.auth-body {
   padding: 10px 14px;
   color: #4f5b66;
   text-decoration: none;
-  border-radius: 8px; /* تغییر یافته از 999px به 8px جهت همسان‌سازی با هدر */
-  transition: all 0.25s ease;
+  border-radius: 8px;
+  transition:
+    background-color 0.22s ease,
+    color 0.22s ease,
+    padding 0.28s ease,
+    gap 0.28s ease;
   font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.2;
   border-right: none;
 }
 
 .sidebar-link::after {
   content: "";
   position: absolute;
-  top: 0; /* چسبیدن نشانگر به بالا و پایین آیتم */
+  top: 0;
   bottom: 0;
   right: 0;
   width: 4px;
-  border-top-right-radius: 8px; /* انحنای منطبق با انحنای دکمه */
+  border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
   background: transparent;
-  transition: all 0.25s ease;
+  transition: background-color 0.22s ease;
 }
 
 .sidebar-link i {
@@ -352,6 +359,7 @@ body.auth-body {
   min-width: 24px;
   text-align: center;
   flex-shrink: 0;
+  transition: transform 0.28s ease;
 }
 
 .sidebar-link-text {
@@ -391,13 +399,20 @@ body.auth-body {
 }
 
 .sidebar-submenu .sidebar-link {
-  min-height: 42px;
-  font-size: 0.88rem;
-  font-weight: 400;
+  min-height: 40px;
+  font-size: 0.87rem;
+  font-weight: 500;
   color: #7b8790;
+  padding-top: 9px;
+  padding-bottom: 9px;
   padding-right: 52px;
   padding-left: 14px;
-  border-radius: 8px; /* تغییر یافته به 8px جهت هماهنگی */
+  border-radius: 8px;
+}
+
+.sidebar-submenu .sidebar-link:hover {
+  background-color: rgba(25, 135, 84, 0.05);
+  color: var(--primary-color);
 }
 
 .sidebar-submenu .sidebar-link i {
@@ -405,8 +420,13 @@ body.auth-body {
 }
 
 .sidebar-submenu .sidebar-link.active {
+  background-color: rgba(25, 135, 84, 0.09);
   color: var(--primary-color) !important;
   font-weight: 700;
+}
+
+.sidebar-submenu .sidebar-link.active::after {
+  background: rgba(25, 135, 84, 0.9);
 }
 
 .sidebar-group > .collapse.show + .sidebar-link .sidebar-link-arrow,
@@ -444,7 +464,7 @@ body.auth-body {
   min-height: calc(100vh - var(--header-height));
   background-color: var(--content-bg);
   padding: 20px;
-  transition: margin-right 0.25s ease;
+  transition: margin-right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.sidebar-open {
@@ -646,7 +666,7 @@ body.sidebar-open {
   body.sidebar-desktop-mini .sidebar-brand-text,
   body.sidebar-desktop-mini .sidebar-link-text,
   body.sidebar-desktop-mini .sidebar-link-arrow {
-    display: none !important; /* خروج کامل از جریان لایوت جهت تراز شدن آیکن‌ها */
+    display: none !important;
   }
 
   body.sidebar-desktop-mini .sidebar-top {
@@ -665,7 +685,7 @@ body.sidebar-open {
   body.sidebar-desktop-mini .sidebar-link {
     justify-content: center;
     padding: 10px 0;
-    border-radius: 8px; /* هماهنگ با انحنای جدید */
+    border-radius: 8px;
   }
 
   body.sidebar-desktop-mini .sidebar-link i {
@@ -686,11 +706,11 @@ body.sidebar-open {
 
   /* ===== [ADDED MINI + HOVER EXPANDED RESTORE] ===== */
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-brand {
-    display: none !important; /* برند همچنان در تمام حالات مخفی بماند */
+    display: none !important;
   }
 
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-top {
-    justify-content: center; /* دکمه همبرگری در مرکز بماند */
+    justify-content: center;
     padding: 14px;
   }
 
