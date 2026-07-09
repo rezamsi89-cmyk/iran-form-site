@@ -2,6 +2,7 @@
   "use strict";
 
   const API_BASE_URL = "https://iran-form-api.reza-msi89.workers.dev";
+  const SIDEBAR_API_BASE_URL = "https://sidebar-menu-api.reza-msi89.workers.dev";
 
   const pages = {
     dashboard: "pages/dashboard.html",
@@ -205,7 +206,7 @@
 
     try {
       const token = getToken();
-      const response = await fetch(`${API_BASE_URL}/api/sidebar-menu`, {
+      const response = await fetch(`${SIDEBAR_API_BASE_URL}/api/sidebar-menu`, {
         method: "GET",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
@@ -229,6 +230,9 @@
       cacheLayoutElements();
       bindSidebarMenuEvents();
       setActiveMenu(getCurrentPageKey());
+    } catch (error) {
+      console.error("Sidebar menu load error:", error);
+      throw error;
     } finally {
       if (loadingEl) {
         loadingEl.classList.add("d-none");
