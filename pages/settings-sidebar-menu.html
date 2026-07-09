@@ -1,0 +1,192 @@
+<div class="container-fluid py-4" data-page-root="settings-sidebar-menu">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+      <h1 class="h4 mb-1">مدیریت منوی سایدبار</h1>
+      <p class="text-muted mb-0">
+        در این بخش می‌توانید آیتم‌های اصلی و زیرمنوهای سایدبار را مدیریت کنید.
+      </p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+      <button type="button" class="btn btn-outline-secondary" id="menuRefreshBtn">
+        بروزرسانی
+      </button>
+      <button type="button" class="btn btn-primary" id="menuNewItemBtn">
+        آیتم جدید
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-xl-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h6 mb-0">فرم افزودن / ویرایش آیتم</h2>
+            <button type="button" class="btn btn-sm btn-outline-danger d-none" id="menuCancelEditBtn">
+              خروج از ویرایش
+            </button>
+          </div>
+
+          <div id="sidebarMenuFormAlert" class="alert alert-danger d-none" role="alert"></div>
+
+          <form id="sidebarMenuForm" novalidate>
+            <input type="hidden" id="menuItemId" />
+
+            <div class="mb-3">
+              <label for="menuTitle" class="form-label">عنوان</label>
+              <input
+                type="text"
+                class="form-control"
+                id="menuTitle"
+                placeholder="مثلاً تنظیمات"
+                maxlength="120"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="menuItemType" class="form-label">نوع آیتم</label>
+              <select class="form-select" id="menuItemType">
+                <option value="link">لینک</option>
+                <option value="group">گروه</option>
+              </select>
+            </div>
+
+            <div class="mb-3" id="menuRouteGroup">
+              <label for="menuRoute" class="form-label">مسیر / Route</label>
+              <input
+                type="text"
+                class="form-control"
+                id="menuRoute"
+                dir="ltr"
+                placeholder="مثلاً settings-sidebar-menu"
+              />
+              <div class="form-text">
+                برای SPA بهتر است route بدون `#` وارد شود.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="menuIcon" class="form-label">آیکن</label>
+              <input
+                type="text"
+                class="form-control"
+                id="menuIcon"
+                dir="ltr"
+                placeholder="مثلاً bi bi-gear"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="menuParentId" class="form-label">والد</label>
+              <select class="form-select" id="menuParentId">
+                <option value="">بدون والد (آیتم اصلی)</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="menuSortOrder" class="form-label">ترتیب نمایش</label>
+              <input
+                type="number"
+                class="form-control"
+                id="menuSortOrder"
+                value="0"
+                min="0"
+                step="1"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="menuTarget" class="form-label">نوع باز شدن لینک</label>
+              <select class="form-select" id="menuTarget">
+                <option value="_self">همین پنجره</option>
+                <option value="_blank">پنجره جدید</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="menuPermissionKey" class="form-label">نقش / Permission Key</label>
+              <input
+                type="text"
+                class="form-control"
+                id="menuPermissionKey"
+                dir="ltr"
+                placeholder="مثلاً admin.sidebar.manage"
+              />
+              <div class="form-text">
+                این فیلد فعلاً برای کنترل دسترسی آینده‌نگر نگه‌داری می‌شود.
+              </div>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+              <input class="form-check-input" type="checkbox" id="menuIsActive" checked />
+              <label class="form-check-label" for="menuIsActive">آیتم فعال باشد</label>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+              <button type="submit" class="btn btn-success" id="menuSubmitBtn">
+                <span id="menuSubmitBtnText">ذخیره آیتم</span>
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="menuResetBtn">
+                بازنشانی فرم
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <h2 class="h6 mb-0">لیست آیتم‌های منو</h2>
+
+            <div class="d-flex flex-wrap gap-2">
+              <select class="form-select form-select-sm" id="menuFilterType" style="min-width: 140px;">
+                <option value="">همه نوع‌ها</option>
+                <option value="link">لینک</option>
+                <option value="group">گروه</option>
+              </select>
+
+              <select class="form-select form-select-sm" id="menuFilterStatus" style="min-width: 140px;">
+                <option value="">همه وضعیت‌ها</option>
+                <option value="active">فعال</option>
+                <option value="inactive">غیرفعال</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="sidebarMenuListAlert" class="alert alert-danger d-none" role="alert"></div>
+
+          <div id="sidebarMenuLoadingState" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary mb-3" role="status" aria-label="در حال بارگذاری"></div>
+            <div class="text-muted">در حال دریافت اطلاعات منو...</div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>عنوان</th>
+                  <th>نوع</th>
+                  <th>مسیر</th>
+                  <th>والد</th>
+                  <th>ترتیب</th>
+                  <th>نقش</th>
+                  <th>وضعیت</th>
+                  <th>عملیات</th>
+                </tr>
+              </thead>
+              <tbody id="sidebarMenuTableBody"></tbody>
+            </table>
+          </div>
+
+          <div id="sidebarMenuEmptyState" class="text-center text-muted py-4 d-none">
+            هیچ آیتمی برای نمایش وجود ندارد.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
