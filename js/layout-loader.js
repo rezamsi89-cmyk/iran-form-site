@@ -121,8 +121,10 @@
   }
 
   function showLoading() {
-    if (!layout.spaContainer) return;
-    layout.spaContainer.innerHTML = `
+    const container = layout.spaContainer || qs("#page-container") || qs("[data-page-container]");
+    if (!container) return;
+
+    container.innerHTML = `
       <div class="d-flex justify-content-center align-items-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
       </div>
@@ -130,12 +132,20 @@
   }
 
   function showError(message) {
-    if (!layout.spaContainer) return;
-    layout.spaContainer.innerHTML = `
+    const container = layout.spaContainer || qs("#page-container") || qs("[data-page-container]");
+
+    const errorHtml = `
       <div class="alert alert-danger m-3" role="alert">
         ${escapeHtml(message)}
       </div>
     `;
+
+    if (container) {
+      container.innerHTML = errorHtml;
+      return;
+    }
+
+    document.body.insertAdjacentHTML("beforeend", errorHtml);
   }
 
   function setActiveMenu(pageKey) {
@@ -157,6 +167,8 @@
     if (subtitleEl) {
       subtitleEl.textContent = meta.subtitle;
     }
+
+    document.title = `${meta.title} | پنل مدیریت`;
   }
 
   function cacheLayoutElements() {
@@ -330,7 +342,12 @@
         }
 
         event.preventDefault();
-        window.location.hash = page;
+
+        if (window.location.hash === `#${page}`) {
+          handleRouteChange();
+        } else {
+          window.location.hash = page;
+        }
 
         if (isMobileView()) {
           closeSidebar();
@@ -367,6 +384,11 @@
 
       if (!response.ok) {
         throw new Error(`Failed to load page: ${pagePath}`);
+      }
+
+      layout.spaContainer = layout.spaContainer || qs("#page-container") || qs("[data-page-container]");
+      if (!layout.spaContainer) {
+        throw new Error("Page container not found.");
       }
 
       layout.spaContainer.innerHTML = await response.text();
@@ -408,6 +430,25 @@
   }
 
   async function initializeLayout() {
+    cacheLayoutElements();
+
+    const missingContainers = [];
+
+    if (!layout.headerMount) missingContainers.push("#header-container");
+    if (!layout.sidebarMount) missingContainers.push("#sidebar-container");
+    if (!layout.spaContainer) missingContainers.push("#page-container");
+
+    if (missingContainers.length) {
+      console.error("Missing layout containers:", {
+        missingContainers,
+        url: window.location.href,
+        readyState: document.readyState,
+        body: document.body.innerHTML.slice(0, 500),
+      });
+
+      throw new Error(`Missing layout containers: ${missingContainers.join(", ")}`);
+    }
+
     await Promise.all([
       loadLayoutPart("#header-container", "components/header.html"),
       loadLayoutPart("#sidebar-container", "components/sidebar.html"),
@@ -434,5 +475,9 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", bootstrap);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootstrap);
+  } else {
+    bootstrap();
+  }
 })();
