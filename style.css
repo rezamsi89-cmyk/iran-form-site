@@ -140,7 +140,8 @@ body.auth-body {
   font-size: 14px;
   color: #212529;
   background-color: #fff;
-  transition: border-color var(--transition-speed) ease-in-out,
+  transition:
+    border-color var(--transition-speed) ease-in-out,
     box-shadow var(--transition-speed) ease-in-out;
 }
 
@@ -215,6 +216,10 @@ body.auth-body {
   position: relative;
   z-index: 1040;
   align-self: stretch;
+  transition:
+    width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    min-width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s ease;
 }
 
 .app-main {
@@ -271,10 +276,19 @@ body.auth-body {
   height: 100%;
   background-color: var(--sidebar-bg);
   border-left: 1px solid var(--border-color);
-  box-shadow: var(--shadow-md);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition:
+    width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.28s ease,
+    background-color 0.25s ease;
+}
+
+/* [ADDED 2026-07-10 12:00] merge محافظه‌کارانه برای نزدیک‌شدن نمای فعلی به فایل مرجع */
+.sidebar,
+#appSidebar {
+  box-shadow: var(--shadow-md);
 }
 
 .sidebar-container {
@@ -290,6 +304,7 @@ body.auth-body {
   min-height: 100vh;
 }
 
+/* [ADDED 2026-07-10 12:00] پشتیبانی همزمان از نام‌گذاری فعلی و مرجع */
 .sidebar-top,
 .sidebar-header {
   display: flex;
@@ -862,6 +877,7 @@ body.sidebar-open {
     gap 0.28s ease;
 }
 
+/* [ADDED 2026-07-10 12:00] انتقال الگوی ظاهری مرجع به منوی واقعی رندرشده توسط loader */
 #sidebarNavMenu .nav-link::after,
 .sidebar-group-toggle::after {
   content: "";
@@ -883,13 +899,15 @@ body.sidebar-open {
 }
 
 #sidebarNavMenu .nav-link.active,
-.sidebar-group-toggle.active {
+.sidebar-group-toggle.active,
+.sidebar-group-toggle[aria-expanded="true"] {
   background-color: rgba(25, 135, 84, 0.11);
   color: var(--primary-color) !important;
 }
 
 #sidebarNavMenu .nav-link.active::after,
-.sidebar-group-toggle.active::after {
+.sidebar-group-toggle.active::after,
+.sidebar-group-toggle[aria-expanded="true"]::after {
   background: var(--primary-color);
 }
 
@@ -901,6 +919,7 @@ body.sidebar-open {
   flex: 1 1 auto;
 }
 
+/* [ADDED 2026-07-10 12:00] حفظ تک‌خطی بودن آیتم‌ها مطابق درخواست */
 .sidebar-link-content i {
   font-size: 1.15rem;
   width: 24px;
@@ -925,6 +944,12 @@ body.sidebar-open {
   transition: transform 0.25s ease, opacity 0.2s ease;
 }
 
+/* [ADDED 2026-07-10 12:00] چرخش فلش گروه‌ها با منطق فعلی */
+.sidebar-group-toggle[aria-expanded="true"] .sidebar-group-arrow,
+.sidebar-group-toggle:not(.collapsed) .sidebar-group-arrow {
+  transform: rotate(180deg);
+}
+
 #sidebarNavMenu .collapse {
   margin-top: 6px;
 }
@@ -947,6 +972,7 @@ body.sidebar-open {
   padding-bottom: 9px;
 }
 
+/* [ADDED 2026-07-10 12:00] نزدیک‌سازی زیرمنو به مرجع و حفظ سازگاری با loader */
 #sidebarNavMenu .collapse .nav-link:hover {
   background-color: rgba(25, 135, 84, 0.05);
   color: var(--primary-color);
@@ -970,6 +996,14 @@ body.sidebar-open {
 #sidebarNavMenu .text-danger.nav-link:hover {
   background-color: rgba(220, 53, 69, 0.08);
 }
+
+/* [COMMENTED 2026-07-10 12:00] در این merge از حذف selectorهای کلاسیک خودداری شده است */
+/*
+.sidebar-link,
+.sidebar-submenu,
+.sidebar-link-arrow
+برای سازگاری احتمالی با markup قدیمی نگه داشته شده‌اند.
+*/
 
 /* ==========================================================================
    ۷. ریسپانسیو
@@ -1000,6 +1034,12 @@ body.sidebar-open {
     width: 100%;
     height: 100vh;
     box-shadow: none;
+  }
+
+  /* [ADDED 2026-07-10 12:00] hover-expanded دسکتاپ مطابق منطق فایل مرجع */
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar,
+  body.sidebar-desktop-mini.sidebar-hover-expanded #appSidebar {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   }
 
   .sidebar-overlay,
@@ -1051,6 +1091,32 @@ body.sidebar-open {
     display: none;
   }
 
+  /* [ADDED 2026-07-10 12:00] mini mode برای ساختار واقعی loader */
+  body.sidebar-desktop-mini #sidebarNavMenu .nav-link,
+  body.sidebar-desktop-mini .sidebar-group-toggle {
+    justify-content: center;
+    padding: 10px 0;
+  }
+
+  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-link-content {
+    justify-content: center;
+  }
+
+  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-link-content span,
+  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-group-arrow {
+    display: none !important;
+  }
+
+  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-link-content i {
+    width: auto !important;
+    min-width: auto !important;
+    margin: 0 !important;
+  }
+
+  body.sidebar-desktop-mini #sidebarNavMenu .collapse {
+    display: none !important;
+  }
+
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-top,
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-header {
     justify-content: center;
@@ -1084,6 +1150,35 @@ body.sidebar-open {
     display: block;
   }
 
+  /* [ADDED 2026-07-10 12:00] بازگشت متن و فلش در hover-expanded برای منوی loader */
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .nav-link,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-group-toggle {
+    justify-content: space-between;
+    padding: 10px 14px;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .sidebar-link-content {
+    justify-content: flex-start;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .sidebar-link-content span {
+    display: inline !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .sidebar-group-arrow {
+    display: inline-flex !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .sidebar-link-content i {
+    width: 24px !important;
+    min-width: 24px !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .collapse {
+    display: block !important;
+  }
+
+  /* [COMMENTED 2026-07-10 12:00] منطق فعلی همبرگری دسکتاپ حفظ می‌شود */
   #menuToggle {
     display: none !important;
   }
@@ -1118,6 +1213,7 @@ body.sidebar-open {
     right: 0;
     width: 100%;
     height: 100vh;
+    box-shadow: var(--shadow-md);
   }
 
   .app-main,
@@ -1134,6 +1230,11 @@ body.sidebar-open {
 
   .content-area-dynamic {
     margin-right: 0;
+  }
+
+  /* [ADDED 2026-07-10 12:00] همبرگری موبایل با منطق فعلی mount-based هماهنگ است */
+  #menuToggle {
+    display: inline-flex !important;
   }
 }
 
@@ -1168,5 +1269,11 @@ body.sidebar-open {
 
   .app-header-subtitle {
     font-size: 0.72rem;
+  }
+
+  /* [ADDED 2026-07-10 12:00] حفظ رفتار مرجع برای عرض مناسب سایدبار موبایل */
+  #sidebarMount {
+    width: 85vw;
+    min-width: 85vw;
   }
 }
