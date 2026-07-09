@@ -54,9 +54,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: #fff;
   color: var(--text-dark);
+}
+
+body.app-body {
+  background-color: var(--content-bg);
 }
 
 a {
@@ -179,16 +187,55 @@ body.auth-body {
 /* ==========================================================================
    ۳. لایه اصلی برنامه (App Layout)
    ========================================================================== */
-.top-header {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: var(--header-height);
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.app-sidebar,
+#sidebar-container {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  flex-shrink: 0;
+  background-color: var(--sidebar-bg);
+  position: relative;
+  z-index: 1040;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--content-bg);
+}
+
+.app-header,
+#header-container {
+  min-height: var(--header-height);
   background-color: var(--header-bg);
   border-bottom: 1px solid var(--border-color);
-  z-index: 1030;
   box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+  background-color: var(--content-bg);
+  padding: 20px;
+}
+
+.page-container {
+  min-height: 320px;
+}
+
+.top-header {
+  height: var(--header-height);
+  background-color: var(--header-bg);
   display: flex;
   align-items: center;
 }
@@ -202,19 +249,12 @@ body.auth-body {
 }
 
 /* ===== [SIDEBAR SECTION] ===== */
-.sidebar {
-  position: fixed;
-  top: 0;
-  right: calc(-1 * var(--sidebar-width));
-  width: var(--sidebar-width);
-  height: 100vh;
+.sidebar,
+#appSidebar {
+  width: 100%;
+  height: 100%;
   background-color: var(--sidebar-bg);
   border-left: 1px solid var(--border-color);
-  z-index: 1040;
-  transition:
-    right 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.28s ease;
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
@@ -223,10 +263,11 @@ body.auth-body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: 100vh;
 }
 
-.sidebar-top {
+.sidebar-top,
+.sidebar-header {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -389,7 +430,8 @@ body.auth-body {
   background: var(--primary-color);
 }
 
-.sidebar-link.text-danger:hover {
+.sidebar-link.text-danger:hover,
+.sidebar-logout-link:hover {
   background-color: rgba(220, 53, 69, 0.08);
   color: var(--danger-color) !important;
 }
@@ -434,11 +476,13 @@ body.auth-body {
   transform: rotate(180deg);
 }
 
-.sidebar.show {
+.sidebar.show,
+#appSidebar.show {
   right: 0;
 }
 
-.sidebar-overlay {
+.sidebar-overlay,
+#sidebarOverlay {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.4);
@@ -448,7 +492,8 @@ body.auth-body {
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.sidebar-overlay.show {
+.sidebar-overlay.show,
+#sidebarOverlay.show {
   opacity: 1;
   visibility: visible;
 }
@@ -460,11 +505,11 @@ body.auth-body {
 }
 
 .content-area-dynamic {
-  margin-top: var(--header-height);
-  min-height: calc(100vh - var(--header-height));
-  background-color: var(--content-bg);
-  padding: 20px;
-  transition: margin-right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 0;
+  min-height: auto;
+  background-color: transparent;
+  padding: 0;
+  transition: none;
 }
 
 body.sidebar-open {
@@ -619,158 +664,6 @@ body.sidebar-open {
   letter-spacing: 0.05em;
 }
 
-/* ==========================================================================
-   ۶. ریسپانسیو
-   ========================================================================== */
-@media (min-width: 992px) {
-  .sidebar {
-    right: 0;
-    top: var(--header-height);
-    height: calc(100vh - var(--header-height));
-  }
-
-  .sidebar-overlay {
-    display: none !important;
-  }
-
-  body.sidebar-open {
-    overflow: auto;
-  }
-
-  body.sidebar-desktop-expanded .sidebar {
-    width: var(--sidebar-width);
-  }
-
-  body.sidebar-desktop-expanded .content-area-dynamic {
-    margin-right: var(--sidebar-width);
-  }
-
-  body.sidebar-desktop-mini .sidebar {
-    width: 72px;
-  }
-
-  body.sidebar-desktop-mini .content-area-dynamic {
-    margin-right: 72px;
-  }
-
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar {
-    width: var(--sidebar-width);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-  }
-
-  body.sidebar-desktop-mini .sidebar-brand-text,
-  body.sidebar-desktop-mini .sidebar-link-text,
-  body.sidebar-desktop-mini .sidebar-link-arrow {
-    display: none !important;
-  }
-
-  body.sidebar-desktop-mini .sidebar-top {
-    justify-content: center;
-    padding: 14px 10px;
-  }
-
-  body.sidebar-desktop-mini .sidebar-brand {
-    display: none !important;
-  }
-
-  body.sidebar-desktop-mini .sidebar-toggle-btn {
-    margin: 0 auto;
-  }
-
-  body.sidebar-desktop-mini .sidebar-link {
-    justify-content: center;
-    padding: 10px 0;
-    border-radius: 8px;
-  }
-
-  body.sidebar-desktop-mini .sidebar-link i {
-    margin: 0 !important;
-    width: auto !important;
-    min-width: auto !important;
-  }
-
-  body.sidebar-desktop-mini .sidebar-link::after {
-    right: 0px;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-  }
-
-  body.sidebar-desktop-mini .sidebar-submenu {
-    display: none;
-  }
-
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-brand {
-    display: none !important;
-  }
-
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-top {
-    justify-content: center;
-    padding: 14px;
-  }
-
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-brand-text {
-    display: none !important;
-  }
-
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link-text {
-    display: block !important;
-  }
-
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link-arrow {
-    display: inline-block !important;
-  }
-
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link {
-    justify-content: flex-start;
-    padding: 10px 14px;
-    border-radius: 8px;
-  }
-
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link i {
-    width: 24px !important;
-    min-width: 24px !important;
-  }
-
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-submenu {
-    display: block;
-  }
-}
-
-@media (max-width: 991.98px) {
-  .content-area-dynamic {
-    margin-right: 0;
-  }
-
-  .sidebar {
-    top: 0;
-    height: 100vh;
-  }
-}
-
-@media (max-width: 576px) {
-  .auth-card {
-    border-radius: var(--border-radius-md);
-  }
-
-  .card-body {
-    padding: 24px 18px;
-  }
-
-  .top-badge {
-    font-size: 16px;
-    padding: 12px 15px;
-  }
-
-  .content-area-dynamic {
-    padding: 16px;
-  }
-
-  .sidebar {
-    width: 85vw;
-    right: -85vw;
-  }
-}
-
 /* ----------   Style for Menu and Icon Left Header ----------    */
 .app-header-inner {
   height: 100%;
@@ -872,16 +765,13 @@ body.sidebar-open {
   color: #6c757d;
   font-size: 1.2rem;
   transition: all var(--transition-speed) ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
 
 .app-header-user:hover .app-header-user-avatar {
   background-color: rgba(25, 135, 84, 0.1);
   color: var(--primary-color);
   border-color: rgba(25, 135, 84, 0.2);
-}
-
-.app-header-user-avatar {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
 
 .app-header-dropdown {
@@ -910,32 +800,18 @@ body.sidebar-open {
   text-decoration: none;
 }
 
-@media (max-width: 576px) {
-  .app-header-brand-badge {
-    width: 38px;
-    height: 38px;
-    font-size: 0.85rem;
-  }
-
-  .app-header-title {
-    font-size: 0.95rem;
-  }
-
-  .app-header-subtitle {
-    font-size: 0.72rem;
-  }
-}
-
 /* ==========================================================================
-   ۷. Sidebar Sync With layout-loader.js
+   ۶. Sidebar Sync With layout-loader.js
    ========================================================================== */
 .sidebar-container {
-  width: var(--sidebar-width);
-  min-width: var(--sidebar-width);
+  width: 100%;
+  min-width: 100%;
   background-color: var(--sidebar-bg);
 }
 
 #sidebarNavMenu {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
@@ -1036,6 +912,8 @@ body.sidebar-open {
 }
 
 #sidebarNavMenu .collapse .nav {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   padding-right: 14px;
   margin-right: 10px;
@@ -1075,9 +953,211 @@ body.sidebar-open {
   background-color: rgba(220, 53, 69, 0.08);
 }
 
-@media (max-width: 991.98px) {
-  .sidebar-container {
-    min-width: 100%;
+/* ==========================================================================
+   ۷. ریسپانسیو
+   ========================================================================== */
+@media (min-width: 992px) {
+  .app-sidebar,
+  #sidebar-container {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+  }
+
+  .sidebar,
+  #appSidebar {
+    position: sticky;
+    top: 0;
+    right: 0;
     width: 100%;
+    height: 100vh;
+    box-shadow: none;
+  }
+
+  .sidebar-overlay,
+  #sidebarOverlay {
+    display: none !important;
+  }
+
+  body.sidebar-open {
+    overflow: auto;
+  }
+
+  body.sidebar-desktop-expanded .sidebar,
+  body.sidebar-desktop-expanded #appSidebar {
+    width: 100%;
+  }
+
+  body.sidebar-desktop-mini .app-sidebar,
+  body.sidebar-desktop-mini #sidebar-container {
+    width: 72px;
+    min-width: 72px;
+  }
+
+  body.sidebar-desktop-mini .sidebar,
+  body.sidebar-desktop-mini #appSidebar {
+    width: 72px;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .app-sidebar,
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebar-container {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar,
+  body.sidebar-desktop-mini.sidebar-hover-expanded #appSidebar {
+    width: var(--sidebar-width);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  body.sidebar-desktop-mini .sidebar-brand-text,
+  body.sidebar-desktop-mini .sidebar-link-text,
+  body.sidebar-desktop-mini .sidebar-link-arrow {
+    display: none !important;
+  }
+
+  body.sidebar-desktop-mini .sidebar-top,
+  body.sidebar-desktop-mini .sidebar-header {
+    justify-content: center;
+    padding: 14px 10px;
+  }
+
+  body.sidebar-desktop-mini .sidebar-brand {
+    display: none !important;
+  }
+
+  body.sidebar-desktop-mini .sidebar-toggle-btn {
+    margin: 0 auto;
+  }
+
+  body.sidebar-desktop-mini .sidebar-link {
+    justify-content: center;
+    padding: 10px 0;
+    border-radius: 8px;
+  }
+
+  body.sidebar-desktop-mini .sidebar-link i {
+    margin: 0 !important;
+    width: auto !important;
+    min-width: auto !important;
+  }
+
+  body.sidebar-desktop-mini .sidebar-link::after {
+    right: 0;
+  }
+
+  body.sidebar-desktop-mini .sidebar-submenu {
+    display: none;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-top,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-header {
+    justify-content: center;
+    padding: 14px;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-brand-text {
+    display: none !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link-text {
+    display: block !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link-arrow {
+    display: inline-block !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link {
+    justify-content: flex-start;
+    padding: 10px 14px;
+    border-radius: 8px;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link i {
+    width: 24px !important;
+    min-width: 24px !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-submenu {
+    display: block;
+  }
+
+  #menuToggle {
+    display: none !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .app-layout {
+    display: block;
+  }
+
+  .app-sidebar,
+  #sidebar-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(85vw, 320px);
+    min-width: min(85vw, 320px);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 1040;
+  }
+
+  .app-sidebar.show,
+  #sidebar-container.show {
+    transform: translateX(0);
+  }
+
+  .sidebar,
+  #appSidebar {
+    position: relative;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+  }
+
+  .app-content {
+    padding: 16px;
+  }
+
+  .content-area-dynamic {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-card {
+    border-radius: var(--border-radius-md);
+  }
+
+  .card-body {
+    padding: 24px 18px;
+  }
+
+  .top-badge {
+    font-size: 16px;
+    padding: 12px 15px;
+  }
+
+  .app-content {
+    padding: 16px;
+  }
+
+  .app-header-brand-badge {
+    width: 38px;
+    height: 38px;
+    font-size: 0.85rem;
+  }
+
+  .app-header-title {
+    font-size: 0.95rem;
+  }
+
+  .app-header-subtitle {
+    font-size: 0.72rem;
   }
 }
