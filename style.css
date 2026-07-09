@@ -1339,3 +1339,122 @@ body.sidebar-open {
     min-width: 85vw;
   }
 }
+
+/* ==========================================================================
+   ۸. Sidebar Final Patch - Preserving Existing CSS
+   فقط patch تکمیلی؛ بدون حذف کدهای قبلی
+   ========================================================================== */
+
+/* 1) active شبیه normal: فقط رنگ/پس‌زمینه خیلی ملایم */
+.sidebar-link.active,
+#sidebarNavMenu .nav-link.active,
+.sidebar-group-toggle.active,
+.sidebar-group-toggle[aria-expanded="true"] {
+  background-color: rgba(25, 135, 84, 0.07) !important;
+  color: var(--primary-color) !important;
+  font-weight: 700;
+}
+
+.sidebar-submenu .sidebar-link.active,
+#sidebarNavMenu .collapse .nav-link.active {
+  background-color: rgba(25, 135, 84, 0.05) !important;
+  color: var(--primary-color) !important;
+  font-weight: 600;
+}
+
+.sidebar-link.active::after,
+#sidebarNavMenu .nav-link.active::after,
+.sidebar-group-toggle.active::after,
+.sidebar-group-toggle[aria-expanded="true"]::after,
+.sidebar-submenu .sidebar-link.active::after,
+#sidebarNavMenu .collapse .nav-link.active::after {
+  background: rgba(25, 135, 84, 0.75) !important;
+}
+
+/* 2) کاهش تورفتگی زیرمنو */
+.sidebar-submenu .sidebar-link {
+  padding-right: 36px !important;
+  padding-left: 12px !important;
+}
+
+#sidebarNavMenu .collapse .nav {
+  padding-right: 8px !important;
+  margin-right: 4px !important;
+}
+
+#sidebarNavMenu .collapse .nav-link {
+  padding-right: 12px !important;
+  padding-left: 12px !important;
+}
+
+/* 3) mini mode: تثبیت وسط‌چینی آیکن‌ها */
+@media (min-width: 992px) {
+  body.sidebar-desktop-mini #sidebarNavMenu .nav-link,
+  body.sidebar-desktop-mini .sidebar-group-toggle,
+  body.sidebar-desktop-mini .sidebar-link,
+  body.sidebar-desktop-mini .sidebar-menu-group-title {
+    justify-content: center !important;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-link-content,
+  body.sidebar-desktop-mini .sidebar-link {
+    justify-content: center !important;
+  }
+
+  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-link-content i,
+  body.sidebar-desktop-mini .sidebar-link i,
+  body.sidebar-desktop-mini .sidebar-menu-group-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px !important;
+    min-width: 24px !important;
+    margin: 0 auto !important;
+  }
+
+  /* 4) hover expanded: بازگشت حالت کامل */
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .nav-link,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-group-toggle,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-menu-group-title {
+    justify-content: space-between !important;
+    padding-right: 14px !important;
+    padding-left: 14px !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .sidebar-link-content,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link {
+    justify-content: flex-start !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-submenu .sidebar-link {
+    padding-right: 36px !important;
+    padding-left: 12px !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .collapse .nav {
+    padding-right: 8px !important;
+    margin-right: 4px !important;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .collapse .nav-link {
+    padding-right: 12px !important;
+    padding-left: 12px !important;
+  }
+}
+
+/* 5) حالت pinned/unpinned دکمه همبرگری */
+.sidebar-toggle-btn.is-pinned,
+.sidebar-toggle-btn[aria-pressed="true"] {
+  background: rgba(25, 135, 84, 0.10);
+  color: var(--primary-color);
+  border-color: rgba(25, 135, 84, 0.18);
+}
+
+/* 6) overlay و outside click آماده‌تر */
+.sidebar-overlay,
+#sidebarOverlay {
+  backdrop-filter: blur(1.5px);
+}
