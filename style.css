@@ -1,0 +1,910 @@
+/* ==========================================================================
+   ۱. فونت‌ها و متغیرهای پایه (Base & Variables)
+   ========================================================================== */
+@font-face {
+  font-family: "Shabnam FD";
+  src: url("./fonts/Shabnam-FD.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam FD";
+  src: url("./fonts/Shabnam-Bold-FD.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+* {
+  font-family: "Shabnam FD", Tahoma, sans-serif !important;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #198754;
+  --primary-hover: #146c43;
+  --secondary-color: #0d6efd;
+  --secondary-hover: #0b5ed7;
+  --danger-color: #dc3545;
+  --bg-gradient: linear-gradient(135deg, #e3f2fd, #f8f9fa, #e8f5e9);
+  --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  --border-radius-lg: 20px;
+  --border-radius-md: 12px;
+  --border-radius-sm: 8px;
+  --transition-speed: 0.25s;
+
+  --header-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --border-color: #edeef0;
+  --text-dark: #2d3436;
+  --text-muted: #636e72;
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --content-bg: #f8f9fa;
+  --sidebar-width: 260px;
+  --header-height: 70px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #fff;
+  color: var(--text-dark);
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* ==========================================================================
+   ۲. بخش احراز هویت (Auth Pages)
+   ========================================================================== */
+body.auth-body {
+  background: var(--bg-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-card,
+.login-card,
+.register-card,
+.reset-card,
+.forget-card {
+  width: 100%;
+  max-width: 430px;
+  border: none;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow);
+  background: #ffffff;
+  overflow: hidden;
+  transition: transform var(--transition-speed) ease;
+}
+
+.register-card {
+  max-width: 520px;
+}
+
+.top-badge {
+  background: var(--primary-color);
+  color: white;
+  text-align: center;
+  padding: 16px 20px;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.card-body {
+  padding: 30px 28px;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.form-control,
+.form-select {
+  border-radius: var(--border-radius-md);
+  padding: 12px 14px;
+  border: 1px solid #dee2e6;
+  font-size: 14px;
+  color: #212529;
+  background-color: #fff;
+  transition: border-color var(--transition-speed) ease-in-out, box-shadow var(--transition-speed) ease-in-out;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+  outline: 0;
+}
+
+.password-toggle-btn,
+#togglePass,
+#toggleConfirmPass {
+  border-radius: var(--border-radius-md) 0 0 var(--border-radius-md) !important;
+  border-color: #dee2e6;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  z-index: 4;
+  border-right: none;
+  transition: all var(--transition-speed);
+}
+
+.btn-custom {
+  border-radius: var(--border-radius-md);
+  padding: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all var(--transition-speed) ease;
+}
+
+.auth-links {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.auth-links a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   ۳. لایه اصلی برنامه (App Layout)
+   ========================================================================== */
+.top-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--header-height);
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1030;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+}
+
+.top-header .container-fluid {
+  width: 100%;
+}
+
+#headerUserName {
+  color: var(--text-dark);
+}
+
+/* ===== [SIDEBAR SECTION - REPLACED / UPDATED] ===== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: calc(-1 * var(--sidebar-width));
+  width: var(--sidebar-width);
+  height: 100vh;
+  background-color: var(--sidebar-bg);
+  border-left: 1px solid var(--border-color);
+  z-index: 1040;
+  transition:
+    right 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.25s ease,
+    box-shadow 0.25s ease;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+/* ===== [ADDED INNER SIDEBAR SCROLL SUPPORT] ===== */
+.sidebar-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 10px 14px;
+  border-bottom: 1px solid #f1f3f5;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-brand-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(25, 135, 84, 0.08);
+  color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar-brand-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  white-space: nowrap;
+}
+
+.sidebar-brand-subtitle {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #9aa1a7;
+  white-space: nowrap;
+}
+
+.sidebar-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #eef1f3;
+  background: #fff;
+  color: #5f6b76;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(25, 135, 84, 0.06);
+  color: var(--primary-color);
+  border-color: rgba(25, 135, 84, 0.15);
+}
+
+.sidebar-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 10px 14px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-collapse-trigger {
+  cursor: pointer;
+}
+
+.sidebar-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  gap: 12px;
+  padding: 10px 14px;
+  color: #4f5b66;
+  text-decoration: none;
+  border-radius: 999px;
+  transition: all 0.25s ease;
+  font-weight: 700;
+  border-right: none;
+}
+
+.sidebar-link::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  right: 0;
+  width: 4px;
+  border-radius: 999px;
+  background: transparent;
+  transition: all 0.25s ease;
+}
+
+.sidebar-link i {
+  font-size: 1.15rem;
+  width: 24px;
+  min-width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-link-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.sidebar-link-arrow {
+  font-size: 0.85rem;
+  color: #98a1a8;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(25, 135, 84, 0.07);
+  color: var(--primary-color);
+}
+
+.sidebar-link.active {
+  background-color: rgba(25, 135, 84, 0.11);
+  color: var(--primary-color) !important;
+  font-weight: 700;
+}
+
+.sidebar-link.active::after {
+  background: var(--primary-color);
+}
+
+.sidebar-link.text-danger:hover {
+  background-color: rgba(220, 53, 69, 0.08);
+  color: var(--danger-color) !important;
+}
+
+.sidebar-submenu {
+  padding: 4px 0 2px;
+}
+
+.sidebar-submenu .sidebar-link {
+  min-height: 42px;
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: #7b8790;
+  padding-right: 52px;
+  padding-left: 14px;
+  border-radius: 999px;
+}
+
+.sidebar-submenu .sidebar-link i {
+  font-size: 0.95rem;
+}
+
+.sidebar-submenu .sidebar-link.active {
+  color: var(--primary-color) !important;
+  font-weight: 700;
+}
+
+.sidebar-group > .collapse.show + .sidebar-link .sidebar-link-arrow,
+.sidebar-group > .sidebar-link[aria-expanded="true"] .sidebar-link-arrow {
+  transform: rotate(180deg);
+}
+
+.sidebar.show {
+  right: 0;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1035;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ===== [CONTENT AREA - UPDATED FOR SIDEBAR STATES] ===== */
+.sidebar-footer-area {
+  flex: 0 0 auto;
+  padding-top: 0;
+}
+
+.content-area-dynamic {
+  margin-top: var(--header-height);
+  min-height: calc(100vh - var(--header-height));
+  background-color: var(--content-bg);
+  padding: 20px;
+  transition: margin-right 0.25s ease;
+}
+
+body.sidebar-open {
+  overflow: hidden;
+}
+
+.spa-loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* ==========================================================================
+   ۴. انیمیشن‌ها و وضعیت‌ها (Helper Classes)
+   ========================================================================== */
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.spinner-border-sm {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-width: 0.18em;
+  margin-left: 6px;
+}
+
+.alert {
+  border-radius: var(--border-radius-md);
+  font-size: 14px;
+  padding: 12px 16px;
+  border: none;
+}
+
+.alert-danger {
+  background-color: #fde8eb;
+  color: var(--danger-color);
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  color: var(--primary-color);
+}
+
+.fade-in {
+  animation: fadeIn var(--transition-speed) ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   ۵. بخش استایل‌های اختصاصی داشبورد و مدیریت کاربران
+   ========================================================================== */
+.stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.bg-light-primary {
+  background-color: rgba(13, 110, 253, 0.08);
+}
+
+.bg-light-success {
+  background-color: rgba(25, 135, 84, 0.08);
+}
+
+.bg-light-warning {
+  background-color: rgba(255, 193, 7, 0.08);
+}
+
+.custom-user-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.custom-user-table thead th {
+  background-color: #f8f9fa;
+  color: #5c636a;
+  font-weight: 700;
+  border-bottom: 2px solid #e9ecef;
+  font-size: 0.9rem;
+}
+
+.custom-user-table tbody tr {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.custom-user-table tbody tr:hover {
+  background-color: rgba(25, 135, 84, 0.03) !important;
+}
+
+.custom-user-table td {
+  padding: 0.95rem 0.75rem;
+  font-size: 0.88rem;
+  color: #495057;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.btn-action-edit {
+  color: var(--secondary-color);
+  background-color: rgba(13, 110, 253, 0.06);
+  border: 1px solid rgba(13, 110, 253, 0.15);
+  font-size: 0.8rem !important;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  transition: all 0.2s ease;
+}
+
+.btn-action-edit:hover {
+  color: #ffffff;
+  background-color: var(--secondary-hover);
+  border-color: var(--secondary-hover);
+}
+
+.btn-action-delete {
+  color: var(--danger-color);
+  background-color: rgba(220, 53, 69, 0.06);
+  border: 1px solid rgba(220, 53, 69, 0.15);
+  font-size: 0.8rem !important;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  transition: all 0.2s ease;
+}
+
+.btn-action-delete:hover {
+  color: #ffffff;
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.font-monospace {
+  font-family: Consolas, "Lucida Console", Monaco, monospace !important;
+  direction: ltr !important;
+  display: inline-block;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   ۶. ریسپانسیو
+   ========================================================================== */
+/* ===== [RESPONSIVE DESKTOP SIDEBAR STATES - REPLACED / UPDATED] ===== */
+@media (min-width: 992px) {
+  .sidebar {
+    right: 0;
+    top: var(--header-height);
+    height: calc(100vh - var(--header-height));
+  }
+
+  .sidebar-overlay {
+    display: none !important;
+  }
+
+  body.sidebar-open {
+    overflow: auto;
+  }
+
+  /* ===== [ADDED DESKTOP EXPANDED MODE] ===== */
+  body.sidebar-desktop-expanded .sidebar {
+    width: var(--sidebar-width);
+  }
+
+  body.sidebar-desktop-expanded .content-area-dynamic {
+    margin-right: var(--sidebar-width);
+  }
+
+  /* ===== [ADDED DESKTOP MINI MODE] ===== */
+  body.sidebar-desktop-mini .sidebar {
+    width: 72px;
+  }
+
+  body.sidebar-desktop-mini .content-area-dynamic {
+    margin-right: 72px;
+  }
+
+  /* ===== [ADDED MINI/HOVER EXPANDED SHARED WIDTH] ===== */
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar {
+    width: var(--sidebar-width);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  /* ===== [ADDED MINI MODE ELEMENT HIDING] ===== */
+  body.sidebar-desktop-mini .sidebar-brand-text,
+  body.sidebar-desktop-mini .sidebar-link-text,
+  body.sidebar-desktop-mini .sidebar-link-arrow {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  body.sidebar-desktop-mini .sidebar-top {
+    justify-content: center;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  body.sidebar-desktop-mini .sidebar-brand {
+    display: none;
+  }
+
+  body.sidebar-desktop-mini .sidebar-toggle-btn {
+    margin: 0 auto;
+  }
+
+  body.sidebar-desktop-mini .sidebar-link {
+    justify-content: center;
+    padding-right: 0;
+    padding-left: 0;
+    border-radius: 16px;
+  }
+
+  body.sidebar-desktop-mini .sidebar-link::after {
+    right: 2px;
+  }
+
+  body.sidebar-desktop-mini .sidebar-submenu {
+    display: none;
+  }
+
+  /* ===== [ADDED MINI + HOVER EXPANDED RESTORE] ===== */
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-brand {
+    display: flex;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-top {
+    justify-content: space-between;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-brand-text,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link-text,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link-arrow {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-link {
+    justify-content: flex-start;
+    padding-right: 14px;
+    padding-left: 14px;
+    border-radius: 999px;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-submenu {
+    display: block;
+  }
+}
+
+/* ===== [RESPONSIVE MOBILE SIDEBAR - REPLACED / UPDATED] ===== */
+@media (max-width: 991.98px) {
+  .content-area-dynamic {
+    margin-right: 0;
+  }
+
+  .sidebar {
+    top: 0;
+    height: 100vh;
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-card {
+    border-radius: var(--border-radius-md);
+  }
+
+  .card-body {
+    padding: 24px 18px;
+  }
+
+  .top-badge {
+    font-size: 16px;
+    padding: 12px 15px;
+  }
+
+  .content-area-dynamic {
+    padding: 16px;
+  }
+
+  /* ===== [ADDED MOBILE SIDEBAR WIDTH] ===== */
+  .sidebar {
+    width: 85vw;
+    right: -85vw;
+  }
+}
+
+/* ----------   Style for Menu and Icon Left Header ----------    */
+.app-header-inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.app-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
+.app-header-brand-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background-color: rgba(25, 135, 84, 0.08);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.app-header-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.app-header-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.app-header-subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.app-header-user {
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.app-header-user:hover {
+  background-color: rgba(25, 135, 84, 0.04);
+}
+
+.app-header-user-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+  margin-left: 4px;
+}
+
+.app-header-user-welcome {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #adb5bd;
+}
+
+.app-header-user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* ظرف دور آیکون کاربر - مینیمال و ظریف */
+.app-header-user-avatar {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  color: #6c757d;
+  font-size: 1.2rem;
+  transition: all var(--transition-speed) ease;
+}
+
+/* افکت هاور روی کل بخش کاربر */
+.app-header-user:hover .app-header-user-avatar {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: var(--primary-color);
+  border-color: rgba(25, 135, 84, 0.2);
+}
+
+/* اگر بخواهیم کمی مدرن‌تر باشد، می‌توانیم به جای آیکون، سایه بسیار محوی بدهیم */
+.app-header-user-avatar {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.app-header-dropdown {
+  min-width: 220px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  padding: 8px;
+}
+
+.app-header-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+}
+
+.app-header-dropdown-item:hover {
+  background-color: rgba(25, 135, 84, 0.05);
+  color: var(--primary-color);
+}
+
+.app-header-menu-btn {
+  text-decoration: none;
+}
+
+@media (max-width: 576px) {
+  .app-header-brand-badge {
+    width: 38px;
+    height: 38px;
+    font-size: 0.85rem;
+  }
+
+  .app-header-title {
+    font-size: 0.95rem;
+  }
+
+  .app-header-subtitle {
+    font-size: 0.72rem;
+  }
+}
