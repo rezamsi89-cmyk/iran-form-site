@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const API_BASE_URL = 'https://iran-form-api.reza-msi89.workers.dev';
+  const SIDEBAR_API_BASE_URL = 'https://sidebar-menu-api.reza-msi89.workers.dev';
 
   const state = {
     items: [],
@@ -341,7 +341,7 @@
   }
 
   async function fetchSidebarMenuAdminList() {
-    const response = await fetch(`${API_BASE_URL}/api/sidebar-menu/admin`, {
+    const response = await fetch(`${SIDEBAR_API_BASE_URL}/api/sidebar-menu/admin`, {
       method: 'GET',
       headers: getAuthHeaders(false)
     });
@@ -354,7 +354,7 @@
   }
 
   async function createSidebarMenuItem(payload) {
-    const response = await fetch(`${API_BASE_URL}/api/sidebar-menu`, {
+    const response = await fetch(`${SIDEBAR_API_BASE_URL}/api/sidebar-menu`, {
       method: 'POST',
       headers: getAuthHeaders(true),
       body: JSON.stringify(payload)
@@ -368,7 +368,7 @@
   }
 
   async function updateSidebarMenuItem(id, payload) {
-    const response = await fetch(`${API_BASE_URL}/api/sidebar-menu/${id}`, {
+    const response = await fetch(`${SIDEBAR_API_BASE_URL}/api/sidebar-menu/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(true),
       body: JSON.stringify(payload)
@@ -382,7 +382,7 @@
   }
 
   async function deleteSidebarMenuItem(id) {
-    const response = await fetch(`${API_BASE_URL}/api/sidebar-menu/${id}`, {
+    const response = await fetch(`${SIDEBAR_API_BASE_URL}/api/sidebar-menu/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(false)
     });
@@ -395,7 +395,7 @@
   }
 
   async function toggleSidebarMenuItem(id) {
-    const response = await fetch(`${API_BASE_URL}/api/sidebar-menu/${id}/toggle`, {
+    const response = await fetch(`${SIDEBAR_API_BASE_URL}/api/sidebar-menu/${id}/toggle`, {
       method: 'PATCH',
       headers: getAuthHeaders(true)
     });
