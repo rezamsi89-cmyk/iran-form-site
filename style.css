@@ -446,6 +446,8 @@ body.auth-body {
   flex: 1 1 auto;
   min-width: 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-link-arrow {
@@ -475,7 +477,43 @@ body.auth-body {
   color: var(--danger-color) !important;
 }
 
+/* [ADDED 2026-07-10 12:30] sync نهایی با markup واقعی renderSidebarMenu */
+.sidebar-menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-menu-group-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 14px 4px;
+  color: #98a1a8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sidebar-menu-group-icon {
+  width: 24px;
+  min-width: 24px;
+  text-align: center;
+  color: #a8b0b7;
+  flex-shrink: 0;
+}
+
+.sidebar-menu-group-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .sidebar-submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   padding: 4px 0 2px;
 }
 
@@ -1034,6 +1072,7 @@ body.sidebar-open {
     width: 100%;
     height: 100vh;
     box-shadow: none;
+    transform: none !important;
   }
 
   /* [ADDED 2026-07-10 12:00] hover-expanded دسکتاپ مطابق منطق فایل مرجع */
@@ -1093,7 +1132,8 @@ body.sidebar-open {
 
   /* [ADDED 2026-07-10 12:00] mini mode برای ساختار واقعی loader */
   body.sidebar-desktop-mini #sidebarNavMenu .nav-link,
-  body.sidebar-desktop-mini .sidebar-group-toggle {
+  body.sidebar-desktop-mini .sidebar-group-toggle,
+  body.sidebar-desktop-mini .sidebar-menu-group-title {
     justify-content: center;
     padding: 10px 0;
   }
@@ -1103,17 +1143,20 @@ body.sidebar-open {
   }
 
   body.sidebar-desktop-mini #sidebarNavMenu .sidebar-link-content span,
-  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-group-arrow {
+  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-group-arrow,
+  body.sidebar-desktop-mini .sidebar-menu-group-text {
     display: none !important;
   }
 
-  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-link-content i {
+  body.sidebar-desktop-mini #sidebarNavMenu .sidebar-link-content i,
+  body.sidebar-desktop-mini .sidebar-menu-group-icon {
     width: auto !important;
     min-width: auto !important;
     margin: 0 !important;
   }
 
-  body.sidebar-desktop-mini #sidebarNavMenu .collapse {
+  body.sidebar-desktop-mini #sidebarNavMenu .collapse,
+  body.sidebar-desktop-mini .sidebar-submenu {
     display: none !important;
   }
 
@@ -1147,12 +1190,13 @@ body.sidebar-open {
   }
 
   body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-submenu {
-    display: block;
+    display: flex !important;
   }
 
   /* [ADDED 2026-07-10 12:00] بازگشت متن و فلش در hover-expanded برای منوی loader */
   body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .nav-link,
-  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-group-toggle {
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-group-toggle,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-menu-group-title {
     justify-content: space-between;
     padding: 10px 14px;
   }
@@ -1161,7 +1205,8 @@ body.sidebar-open {
     justify-content: flex-start;
   }
 
-  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .sidebar-link-content span {
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .sidebar-link-content span,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-menu-group-text {
     display: inline !important;
   }
 
@@ -1169,12 +1214,14 @@ body.sidebar-open {
     display: inline-flex !important;
   }
 
-  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .sidebar-link-content i {
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .sidebar-link-content i,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-menu-group-icon {
     width: 24px !important;
     min-width: 24px !important;
   }
 
-  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .collapse {
+  body.sidebar-desktop-mini.sidebar-hover-expanded #sidebarNavMenu .collapse,
+  body.sidebar-desktop-mini.sidebar-hover-expanded .sidebar-submenu {
     display: block !important;
   }
 
@@ -1197,23 +1244,36 @@ body.sidebar-open {
     bottom: 0;
     width: min(85vw, 320px);
     min-width: min(85vw, 320px);
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
+    transform: none;
+    transition: none;
     z-index: 1040;
+    overflow: hidden;
+    background: transparent;
   }
 
+  /* [COMMENTED 2026-07-10 12:30] این state با JS فعلی ست نمی‌شود و فقط برای سازگاری نگه داشته شده است */
+  /*
   #sidebarMount.show {
     transform: translateX(0);
   }
+  */
 
   .sidebar,
   #appSidebar {
-    position: relative;
+    position: fixed;
     top: 0;
     right: 0;
-    width: 100%;
+    width: min(85vw, 320px);
     height: 100vh;
     box-shadow: var(--shadow-md);
+    transform: translateX(100%);
+    transition: transform 0.3s ease, box-shadow 0.28s ease;
+  }
+
+  /* [ADDED 2026-07-10 12:30] sync نهایی با layout-loader.js: باز/بسته شدن موبایل روی خود #appSidebar */
+  .sidebar.show,
+  #appSidebar.show {
+    transform: translateX(0);
   }
 
   .app-main,
@@ -1272,7 +1332,9 @@ body.sidebar-open {
   }
 
   /* [ADDED 2026-07-10 12:00] حفظ رفتار مرجع برای عرض مناسب سایدبار موبایل */
-  #sidebarMount {
+  #sidebarMount,
+  .sidebar,
+  #appSidebar {
     width: 85vw;
     min-width: 85vw;
   }
