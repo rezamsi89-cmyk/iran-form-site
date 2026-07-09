@@ -4,6 +4,13 @@
   const API_BASE_URL = "https://iran-form-api.reza-msi89.workers.dev";
   const SIDEBAR_API_BASE_URL = "https://sidebar-menu-api.reza-msi89.workers.dev";
 
+  // Only ONE naming standard for mount points:
+  const MOUNT_POINTS = {
+    header: "#headerMount",
+    sidebar: "#sidebarMount",
+    spa: "#spaContainer",
+  };
+
   const pages = {
     dashboard: "pages/dashboard.html",
     user_management: "pages/user_management.html",
@@ -15,30 +22,12 @@
   };
 
   const pageMeta = {
-    dashboard: {
-      title: "داشبورد",
-      subtitle: "نمای کلی سامانه",
-    },
-    user_management: {
-      title: "مدیریت کاربران",
-      subtitle: "مشاهده و مدیریت کاربران سامانه",
-    },
-    profile: {
-      title: "پروفایل",
-      subtitle: "اطلاعات حساب کاربری",
-    },
-    files: {
-      title: "فایل‌ها",
-      subtitle: "مدیریت فایل‌های سامانه",
-    },
-    reports: {
-      title: "گزارش‌ها",
-      subtitle: "گزارش‌های مدیریتی",
-    },
-    settings: {
-      title: "تنظیمات",
-      subtitle: "پیکربندی سامانه",
-    },
+    dashboard: { title: "داشبورد", subtitle: "نمای کلی سامانه" },
+    user_management: { title: "مدیریت کاربران", subtitle: "مشاهده و مدیریت کاربران سامانه" },
+    profile: { title: "پروفایل", subtitle: "اطلاعات حساب کاربری" },
+    files: { title: "فایل‌ها", subtitle: "مدیریت فایل‌های سامانه" },
+    reports: { title: "گزارش‌ها", subtitle: "گزارش‌های مدیریتی" },
+    settings: { title: "تنظیمات", subtitle: "پیکربندی سامانه" },
     "settings-sidebar-menu": {
       title: "تنظیمات منوی سایدبار",
       subtitle: "مدیریت آیتم‌ها و زیرمنوهای سایدبار",
@@ -49,9 +38,12 @@
     headerMount: null,
     sidebarMount: null,
     spaContainer: null,
+
+    // widgets inside loaded components
     sidebar: null,
     sidebarOverlay: null,
     menuToggle: null,
+
     logoutButtons: [],
     navLinks: [],
   };
@@ -64,26 +56,8 @@
     return Array.from(parent.querySelectorAll(selector));
   }
 
-  function getFirstElement(selectors) {
-    for (const selector of selectors) {
-      const element = qs(selector);
-      if (element) {
-        return element;
-      }
-    }
-    return null;
-  }
-
   function getToken() {
     return localStorage.getItem("token");
-  }
-
-  function getCurrentPageKey() {
-    const hash = window.location.hash.replace("#", "").trim();
-    if (!hash || hash === "logout") {
-      return "dashboard";
-    }
-    return pages[hash] ? hash : "dashboard";
   }
 
   function escapeHtml(value) {
@@ -95,27 +69,25 @@
       .replace(/'/g, "&#039;");
   }
 
+  function getCurrentPageKey() {
+    const hash = window.location.hash.replace("#", "").trim();
+    if (!hash || hash === "logout") return "dashboard";
+    return pages[hash] ? hash : "dashboard";
+  }
+
   function isMobileView() {
     return window.innerWidth < 992;
   }
 
   function openSidebar() {
-    if (layout.sidebar) {
-      layout.sidebar.classList.add("show");
-    }
-    if (layout.sidebarOverlay) {
-      layout.sidebarOverlay.classList.add("show");
-    }
+    if (layout.sidebar) layout.sidebar.classList.add("show");
+    if (layout.sidebarOverlay) layout.sidebarOverlay.classList.add("show");
     document.body.classList.add("sidebar-open");
   }
 
   function closeSidebar() {
-    if (layout.sidebar) {
-      layout.sidebar.classList.remove("show");
-    }
-    if (layout.sidebarOverlay) {
-      layout.sidebarOverlay.classList.remove("show");
-    }
+    if (layout.sidebar) layout.sidebar.classList.remove("show");
+    if (layout.sidebarOverlay) layout.sidebarOverlay.classList.remove("show");
     document.body.classList.remove("sidebar-open");
   }
 
@@ -125,37 +97,28 @@
   }
 
   function ensureDesktopSidebarState() {
-    if (!isMobileView()) {
-      closeSidebar();
-    }
+    // On desktop, sidebar should not be in overlay mode
+    if (!isMobileView()) closeSidebar();
   }
 
   function showLoading() {
-    const container =
-      layout.spaContainer ||
-      getFirstElement(["#page-container", "#spaContainer", "[data-page-container]"]);
-    if (!container) return;
-
-    container.innerHTML = `
+    if (!layout.spaContainer) return;
+    layout.spaContainer.innerHTML = `
       <div class="d-flex justify-content-center align-items-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
+        <div class="spinner-border text-primary" role="status" aria-label="loading"></div>
       </div>
     `;
   }
 
   function showError(message) {
-    const container =
-      layout.spaContainer ||
-      getFirstElement(["#page-container", "#spaContainer", "[data-page-container]"]);
-
     const errorHtml = `
       <div class="alert alert-danger m-3" role="alert">
         ${escapeHtml(message)}
       </div>
     `;
 
-    if (container) {
-      container.innerHTML = errorHtml;
+    if (layout.spaContainer) {
+      layout.spaContainer.innerHTML = errorHtml;
       return;
     }
 
@@ -174,32 +137,32 @@
     const titleEl = qs("[data-page-title]");
     const subtitleEl = qs("[data-page-subtitle]");
 
-    if (titleEl) {
-      titleEl.textContent = meta.title;
-    }
-
-    if (subtitleEl) {
-      subtitleEl.textContent = meta.subtitle;
-    }
+    if (titleEl) titleEl.textContent = meta.title;
+    if (subtitleEl) subtitleEl.textContent = meta.subtitle;
 
     document.title = `${meta.title} | پنل مدیریت`;
   }
 
   function cacheLayoutElements() {
-    layout.headerMount = getFirstElement(["#header-container", "#headerMount"]);
-    layout.sidebarMount = getFirstElement(["#sidebar-container", "#sidebarMount"]);
-    layout.spaContainer = getFirstElement(["#page-container", "#spaContainer", "[data-page-container]"]);
-    layout.sidebar = getFirstElement(["#appSidebar", "#sidebar"]);
-    layout.sidebarOverlay = getFirstElement(["#sidebarOverlay", ".sidebar-overlay"]);
+    // Mount points (must exist in home.html)
+    layout.headerMount = qs(MOUNT_POINTS.header);
+    layout.sidebarMount = qs(MOUNT_POINTS.sidebar);
+    layout.spaContainer = qs(MOUNT_POINTS.spa);
+
+    // Widgets inside loaded components
+    layout.sidebar = qs("#appSidebar");
+    layout.sidebarOverlay = qs("#sidebarOverlay, .sidebar-overlay");
     layout.menuToggle = qs("#menuToggle");
-    layout.logoutButtons = qsa("[data-action='logout'], #logoutBtn");
+
+    // Action elements
+    layout.logoutButtons = qsa("[data-action='logout']");
     layout.navLinks = qsa("[data-page]");
   }
 
-  async function loadLayoutPartFlexible(selectors, filePath) {
-    const target = getFirstElement(selectors);
+  async function loadLayoutPart(selector, filePath) {
+    const target = qs(selector);
     if (!target) {
-      throw new Error(`Container not found: ${selectors.join(" or ")}`);
+      throw new Error(`Container not found for selector: ${selector}`);
     }
 
     const response = await fetch(filePath, { cache: "no-store" });
@@ -211,10 +174,7 @@
   }
 
   function renderSidebarMenu(items) {
-    if (!Array.isArray(items) || items.length === 0) {
-      return "";
-    }
-
+    if (!Array.isArray(items) || items.length === 0) return "";
     return items.map(renderSidebarMenuItem).join("");
   }
 
@@ -249,9 +209,7 @@
       `;
     }
 
-    if (!route) {
-      return "";
-    }
+    if (!route) return "";
 
     const targetAttr = target ? ` target="${escapeHtml(target)}"` : "";
 
@@ -267,13 +225,10 @@
     const menuContainer = qs("#sidebarNavMenu");
     const loadingEl = qs("#sidebarMenuLoading");
 
-    if (!menuContainer) {
-      throw new Error("Sidebar menu container not found.");
-    }
+    // Sidebar component might not have this container in some pages/layouts
+    if (!menuContainer) return;
 
-    if (loadingEl) {
-      loadingEl.classList.remove("d-none");
-    }
+    if (loadingEl) loadingEl.classList.remove("d-none");
 
     try {
       const token = getToken();
@@ -292,22 +247,20 @@
 
       const data = await response.json();
 
-      if (!data.success || !Array.isArray(data.menu)) {
+      if (!data || !data.success || !Array.isArray(data.menu)) {
         throw new Error("Invalid sidebar menu response.");
       }
 
       menuContainer.innerHTML = renderSidebarMenu(data.menu);
 
-      cacheLayoutElements();
+      cacheLayoutElements(); // refresh references after inject
       bindSidebarMenuEvents();
       setActiveMenu(getCurrentPageKey());
     } catch (error) {
       console.error("Sidebar menu load error:", error);
-      throw error;
+      // Non-fatal: keep UI usable
     } finally {
-      if (loadingEl) {
-        loadingEl.classList.add("d-none");
-      }
+      if (loadingEl) loadingEl.classList.add("d-none");
     }
   }
 
@@ -318,16 +271,12 @@
       if (token) {
         await fetch(`${API_BASE_URL}/api/auth/logout`, {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }).catch(() => {});
 
         await fetch(`${API_BASE_URL}/logout`, {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }).catch(() => {});
       }
     } finally {
@@ -338,7 +287,7 @@
   }
 
   function bindSidebarMenuEvents() {
-    layout.logoutButtons = qsa("[data-action='logout'], #logoutBtn");
+    layout.logoutButtons = qsa("[data-action='logout']");
     layout.navLinks = qsa("[data-page]");
 
     layout.logoutButtons.forEach((button) => {
@@ -351,9 +300,7 @@
     layout.navLinks.forEach((link) => {
       link.addEventListener("click", (event) => {
         const page = link.getAttribute("data-page");
-        if (!page || !pages[page]) {
-          return;
-        }
+        if (!page || !pages[page]) return;
 
         event.preventDefault();
 
@@ -363,9 +310,7 @@
           window.location.hash = page;
         }
 
-        if (isMobileView()) {
-          closeSidebar();
-        }
+        if (isMobileView()) closeSidebar();
       });
     });
   }
@@ -395,19 +340,12 @@
 
     try {
       const response = await fetch(pagePath, { cache: "no-store" });
+      if (!response.ok) throw new Error(`Failed to load page: ${pagePath}`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to load page: ${pagePath}`);
-      }
-
-      layout.spaContainer =
-        layout.spaContainer ||
-        getFirstElement(["#page-container", "#spaContainer", "[data-page-container]"]);
-      if (!layout.spaContainer) {
-        throw new Error("Page container not found.");
-      }
+      if (!layout.spaContainer) throw new Error("spaContainer not found.");
 
       layout.spaContainer.innerHTML = await response.text();
+
       setActiveMenu(pageKey);
       updatePageMeta(pageKey);
 
@@ -446,28 +384,26 @@
   }
 
   async function initializeLayout() {
+    // Cache mount points first
     cacheLayoutElements();
 
-    const missingContainers = [];
+    const missing = [];
+    if (!layout.headerMount) missing.push(MOUNT_POINTS.header);
+    if (!layout.sidebarMount) missing.push(MOUNT_POINTS.sidebar);
+    if (!layout.spaContainer) missing.push(MOUNT_POINTS.spa);
 
-    if (!layout.headerMount) missingContainers.push("#header-container or #headerMount");
-    if (!layout.sidebarMount) missingContainers.push("#sidebar-container or #sidebarMount");
-    if (!layout.spaContainer) missingContainers.push("#page-container or #spaContainer");
-
-    if (missingContainers.length) {
-      console.error("Missing layout containers:", {
-        missingContainers,
+    if (missing.length) {
+      console.error("Missing mount points:", {
+        missing,
         url: window.location.href,
         readyState: document.readyState,
-        body: document.body.innerHTML.slice(0, 500),
       });
-
-      throw new Error(`Missing layout containers: ${missingContainers.join(", ")}`);
+      throw new Error(`Missing mount points: ${missing.join(", ")}`);
     }
 
     await Promise.all([
-      loadLayoutPartFlexible(["#header-container", "#headerMount"], "components/header.html"),
-      loadLayoutPartFlexible(["#sidebar-container", "#sidebarMount"], "components/sidebar.html"),
+      loadLayoutPart(MOUNT_POINTS.header, "components/header.html"),
+      loadLayoutPart(MOUNT_POINTS.sidebar, "components/sidebar.html"),
     ]);
 
     cacheLayoutElements();
@@ -475,6 +411,7 @@
     await loadAndRenderSidebarMenu();
   }
 
+  // expose for debugging / manual refresh
   window.loadAndRenderSidebarMenu = loadAndRenderSidebarMenu;
 
   async function bootstrap() {
