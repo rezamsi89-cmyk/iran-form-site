@@ -187,11 +187,20 @@ body.auth-body {
 /* ==========================================================================
    ۳. لایه اصلی برنامه (App Layout)
    ========================================================================== */
+/*
 .app-layout {
   display: flex;
   min-height: 100vh;
   width: 100%;
-  direction: rtl; /* اضافه شد: اطمینان از راست‌چین بودن قالب */
+  direction: rtl; /* اضافه شد: اطمینان از راست‌چین بودن قالب 
+*/
+}
+.app-layout{
+  direction: rtl;
+  display: grid;
+  grid-template-columns: 280px 1fr; /* sidebar + content */
+  grid-template-rows: auto 1fr;     /* header + body */
+  min-height: 100vh;
 }
 
 .app-sidebar,
@@ -204,6 +213,24 @@ body.auth-body {
   z-index: 1040;
 }
 
+#headerMount{
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+#sidebarMount{
+  grid-column: 1;   /* در RTL ستون اول سمت راست می‌افتد */
+  grid-row: 2;
+  align-self: start;
+}
+
+.app-main{
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0; /* مهم برای جلوگیری از overflow */
+}
+
+/*
 .app-main {
   flex: 1;
   min-width: 0;
@@ -211,6 +238,7 @@ body.auth-body {
   flex-direction: column;
   background-color: var(--content-bg);
 }
+*/
 
 .app-header,
 #header-container {
@@ -960,6 +988,20 @@ body.sidebar-open {
    ۷. ریسپانسیو
    ========================================================================== */
 @media (min-width: 992px) {
+  .app-layout{
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  #sidebarMount{
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .app-main{
+    grid-column: 1;
+    grid-row: 2;
+  }
+  
   .app-sidebar,
   #sidebar-container {
     width: var(--sidebar-width);
