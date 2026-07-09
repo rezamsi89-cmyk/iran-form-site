@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const API_BASE_URL = "YOUR_API_BASE_URL_HERE";
+  const API_BASE_URL = "https://iran-form-api.reza-msi89.workers.dev";
 
   const pages = {
     dashboard: "pages/dashboard.html",
