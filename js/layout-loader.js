@@ -3,452 +3,442 @@
 
   const API_BASE_URL = 'https://iran-form-api.reza-msi89.workers.dev';
 
-  const PUBLIC_PAGES = ['index.html', 'register.html', 'forgot.html', 'reset.html'];
-
-  const pages = {
-    dashboard: 'pages/dashboard.html',
-    'user-management': 'pages/user-management.html',
-    profile: 'pages/profile.html',
-    files: 'pages/files.html',
-    reports: 'pages/reports.html',
-    settings: 'pages/settings.html'
+  const routes = {
+    dashboard: {
+      path: 'pages/dashboard.html',
+      title: 'داشبورد'
+    },
+    users: {
+      path: 'pages/users.html',
+      title: 'کاربران'
+    },
+    settings: {
+      path: 'pages/settings.html',
+      title: 'تنظیمات'
+    },
+    'settings-sidebar-menu': {
+      path: 'pages/settings-sidebar-menu.html',
+      title: 'مدیریت منوی سایدبار'
+    }
   };
 
-  const layout = {
-    headerMount: null,
-    sidebarMount: null,
-    spaContainer: null,
+  const pageScripts = {
+    'settings-sidebar-menu': 'js/pages/settings-sidebar-menu.js'
+  };
+
+  const loadedPageScripts = new Set();
+
+  const state = {
+    layoutInitialized: false,
+    currentPageKey: null,
+    sidebarMenuCache: null,
+    sidebarMenuLoaded: false
+  };
+
+  const els = {
+    appShell: null,
+    topbar: null,
     sidebar: null,
-    sidebarOverlay: null,
-    menuToggle: null,
-    sidebarToggleBtn: null,
-    logoutBtns: [],
-    navLinks: [],
-    headerUserName: null
+    pageTitle: null,
+    pageContent: null,
+    sidebarNavMenu: null,
+    sidebarMenuLoading: null
   };
-
-  let isLayoutInitialized = false;
-  let isRouteLoading = false;
-  let eventsBound = false;
 
   function qs(selector, parent = document) {
     return parent.querySelector(selector);
   }
 
-  function qsa(selector, parent = document) {
-    return Array.from(parent.querySelectorAll(selector));
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function normalizeRoute(route) {
+    if (!route) return '';
+    return String(route).replace(/^#/, '').replace(/^\/+/, '').trim();
   }
 
   function getToken() {
     return localStorage.getItem('token');
   }
 
-  function getUser() {
-    try {
-      return JSON.parse(localStorage.getItem('user') || 'null');
-    } catch (error) {
-      return null;
+  function getAuthHeaders(contentType = false) {
+    const headers = {};
+    const token = getToken();
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
+
+    if (contentType) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    return headers;
   }
 
-  function getCurrentFileName() {
-    return window.location.pathname.split('/').pop() || 'index.html';
-  }
-
-  function isPublicPage() {
-    return PUBLIC_PAGES.includes(getCurrentFileName());
+  function getCurrentHash() {
+    return window.location.hash || '#dashboard';
   }
 
   function getCurrentPageKey() {
-    const hash = window.location.hash.replace('#', '').trim();
-    if (!hash) return 'dashboard';
-    return Object.prototype.hasOwnProperty.call(pages, hash) ? hash : 'dashboard';
+    const hash = getCurrentHash();
+    const raw = hash.replace(/^#/, '').trim();
+    return routes[raw] ? raw : 'dashboard';
   }
 
-  function isMobileView() {
-    return window.innerWidth < 992;
-  }
-
-  function setActiveMenu(pageKey) {
-    layout.navLinks.forEach((link) => {
-      const linkPage = link.getAttribute('data-page') || link.getAttribute('data-route');
-      link.classList.toggle('active', linkPage === pageKey);
-    });
-  }
-
-  function updateHeaderUser() {
-    if (!layout.headerUserName) return;
-
-    const user = getUser();
-    layout.headerUserName.textContent = user?.fullName || user?.username || 'کاربر سیستم';
-  }
-
-  function closeSidebar() {
-    if (layout.sidebar) {
-      layout.sidebar.classList.remove('show');
+  async function fetchHtml(path) {
+    const response = await fetch(path, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch HTML: ${path}`);
     }
-
-    if (layout.sidebarOverlay) {
-      layout.sidebarOverlay.classList.remove('show');
-    }
-
-    document.body.classList.remove('sidebar-open');
+    return response.text();
   }
 
-  function openSidebar() {
-    if (layout.sidebar) {
-      layout.sidebar.classList.add('show');
-    }
-
-    if (layout.sidebarOverlay) {
-      layout.sidebarOverlay.classList.add('show');
-    }
-
-    document.body.classList.add('sidebar-open');
-  }
-
-  function toggleSidebar() {
-    if (!layout.sidebar) return;
-
-    if (layout.sidebar.classList.contains('show')) {
-      closeSidebar();
-    } else {
-      openSidebar();
-    }
-  }
-
-  function setDesktopExpanded() {
-    document.body.classList.remove('sidebar-desktop-mini', 'sidebar-hover-expanded');
-    document.body.classList.add('sidebar-desktop-expanded');
-  }
-
-  function setDesktopMini() {
-    document.body.classList.remove('sidebar-desktop-expanded', 'sidebar-hover-expanded');
-    document.body.classList.add('sidebar-desktop-mini');
-  }
-
-  function isDesktopMini() {
-    return document.body.classList.contains('sidebar-desktop-mini');
-  }
-
-  function isDesktopExpanded() {
-    return document.body.classList.contains('sidebar-desktop-expanded');
-  }
-
-  function toggleDesktopSidebarMode() {
-    if (isDesktopExpanded()) {
-      setDesktopMini();
-    } else {
-      setDesktopExpanded();
-    }
-  }
-
-  function handleSidebarToggleAction() {
-    if (isMobileView()) {
-      toggleSidebar();
-    } else {
-      toggleDesktopSidebarMode();
-    }
-  }
-
-  function ensureDesktopSidebarState() {
-    if (isMobileView()) {
-      closeSidebar();
-      document.body.classList.remove('sidebar-hover-expanded');
+  async function ensurePageScript(pageKey) {
+    const scriptPath = pageScripts[pageKey];
+    if (!scriptPath || loadedPageScripts.has(pageKey)) {
       return;
     }
 
-    closeSidebar();
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = scriptPath;
+      script.async = true;
 
-    if (
-      !document.body.classList.contains('sidebar-desktop-expanded') &&
-      !document.body.classList.contains('sidebar-desktop-mini')
-    ) {
-      setDesktopExpanded();
-    }
-  }
+      script.onload = () => {
+        loadedPageScripts.add(pageKey);
+        resolve();
+      };
 
-  function bindSidebarHoverEvents() {
-    if (!layout.sidebar) return;
+      script.onerror = () => {
+        reject(new Error(`Failed to load page script: ${scriptPath}`));
+      };
 
-    layout.sidebar.addEventListener('mouseenter', () => {
-      if (!isMobileView() && isDesktopMini()) {
-        document.body.classList.add('sidebar-hover-expanded');
-      }
-    });
-
-    layout.sidebar.addEventListener('mouseleave', () => {
-      if (!isMobileView() && isDesktopMini()) {
-        document.body.classList.remove('sidebar-hover-expanded');
-      }
+      document.body.appendChild(script);
     });
   }
 
-  function showLoading() {
-    if (!layout.spaContainer) return;
-
-    layout.spaContainer.innerHTML = `
-      <div class="d-flex justify-content-center align-items-center py-5">
-        <div class="spinner-border text-primary" role="status" aria-label="در حال بارگذاری"></div>
-      </div>
-    `;
-  }
-
-  function showError(message) {
-    if (!layout.spaContainer) return;
-
-    layout.spaContainer.innerHTML = `
-      <div class="alert alert-danger m-3" role="alert">
-        ${message}
-      </div>
-    `;
-  }
-
-  async function loadLayoutPart(selector, filePath) {
-    const target = qs(selector);
-
-    if (!target) {
-      throw new Error(`Container not found for selector: ${selector}`);
-    }
-
-    const response = await fetch(filePath, { cache: 'no-store' });
+  async function fetchSidebarMenu() {
+    const response = await fetch(`${API_BASE_URL}/api/sidebar-menu`, {
+      method: 'GET',
+      headers: getAuthHeaders(false)
+    });
 
     if (!response.ok) {
-      throw new Error(`Failed to load layout file: ${filePath}`);
+      throw new Error('Failed to fetch sidebar menu.');
     }
 
-    target.innerHTML = await response.text();
+    const result = await response.json();
+    return Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
   }
 
-  function cacheLayoutElements() {
-    layout.headerMount = qs('#headerMount');
-    layout.sidebarMount = qs('#sidebarMount');
-    layout.spaContainer = qs('#spaContainer');
+  function buildSidebarTree(items) {
+    const map = new Map();
+    const roots = [];
 
-    layout.sidebar = qs('#appSidebar') || qs('.sidebar') || qs('#sidebarMount');
-    layout.sidebarOverlay = qs('#sidebarOverlay') || qs('.sidebar-overlay');
+    items.forEach((item) => {
+      map.set(Number(item.id), {
+        ...item,
+        children: []
+      });
+    });
 
-    layout.menuToggle = qs('#menuToggle');
-    layout.sidebarToggleBtn = qs('#sidebarToggleBtn');
+    map.forEach((item) => {
+      const parentId = item.parent_id == null ? null : Number(item.parent_id);
 
-    layout.logoutBtns = qsa('#logoutBtn, .logout-btn');
-    layout.navLinks = qsa('[data-page], [data-route]', layout.sidebar || document);
-    layout.headerUserName = qs('#headerUserName');
+      if (parentId && map.has(parentId)) {
+        map.get(parentId).children.push(item);
+      } else {
+        roots.push(item);
+      }
+    });
+
+    const sortItems = (list) => {
+      list.sort((a, b) => {
+        const orderA = Number(a.sort_order ?? 0);
+        const orderB = Number(b.sort_order ?? 0);
+
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+
+        return String(a.title || '').localeCompare(String(b.title || ''), 'fa');
+      });
+
+      list.forEach((item) => {
+        if (Array.isArray(item.children) && item.children.length) {
+          sortItems(item.children);
+        }
+      });
+
+      return list;
+    };
+
+    return sortItems(roots);
   }
 
-  function redirectToLogin() {
-    window.location.replace('index.html');
+  function hasActiveChild(item, currentPageKey) {
+    if (!item || !Array.isArray(item.children)) return false;
+
+    return item.children.some((child) => {
+      const childRoute = normalizeRoute(child.route);
+      if (childRoute === currentPageKey) return true;
+      return hasActiveChild(child, currentPageKey);
+    });
   }
 
-  function clearAuth() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('isLoggedIn');
+  function renderSidebarMenuItems(items, currentPageKey) {
+    return items.map((item) => {
+      const itemType = item.item_type;
+      const title = escapeHtml(item.title || '');
+      const icon = item.icon ? `<i class="${escapeHtml(item.icon)}"></i>` : '';
+      const isGroup = itemType === 'group';
+      const route = normalizeRoute(item.route);
+      const isActive = route && route === currentPageKey;
+      const childActive = hasActiveChild(item, currentPageKey);
+
+      if (isGroup) {
+        const groupId = `sidebar-group-${item.id}`;
+        const expanded = childActive ? 'true' : 'false';
+        const showClass = childActive ? 'show' : '';
+        const childHtml = renderSidebarMenuItems(item.children || [], currentPageKey);
+
+        return `
+          <li class="nav-item sidebar-group">
+            <button
+              class="nav-link sidebar-group-toggle ${childActive ? 'active' : ''}"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#${groupId}"
+              aria-expanded="${expanded}"
+              aria-controls="${groupId}"
+            >
+              <span class="sidebar-link-content">
+                ${icon}
+                <span>${title}</span>
+              </span>
+              <span class="sidebar-group-arrow">⌄</span>
+            </button>
+            <div class="collapse ${showClass}" id="${groupId}">
+              <ul class="nav flex-column ms-3">
+                ${childHtml}
+              </ul>
+            </div>
+          </li>
+        `;
+      }
+
+      return `
+        <li class="nav-item">
+          <a
+            href="#${escapeHtml(route || '')}"
+            class="nav-link ${isActive ? 'active' : ''}"
+            data-route="${escapeHtml(route || '')}"
+            target="${escapeHtml(item.target || '_self')}"
+          >
+            <span class="sidebar-link-content">
+              ${icon}
+              <span>${title}</span>
+            </span>
+          </a>
+        </li>
+      `;
+    }).join('');
   }
 
-  async function handleLogout(event) {
-    if (event) {
-      event.preventDefault();
+  function bindSidebarGroupToggles() {
+    if (!els.sidebarNavMenu) return;
+
+    const toggles = els.sidebarNavMenu.querySelectorAll('.sidebar-group-toggle');
+    toggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const arrow = qs('.sidebar-group-arrow', toggle);
+        if (!arrow) return;
+
+        window.setTimeout(() => {
+          const expanded = toggle.getAttribute('aria-expanded') === 'true';
+          arrow.style.transform = expanded ? 'rotate(180deg)' : 'rotate(0deg)';
+        }, 0);
+      });
+
+      const arrow = qs('.sidebar-group-arrow', toggle);
+      if (arrow) {
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        arrow.style.transform = expanded ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    });
+  }
+
+  function bindDynamicNavLinks() {
+    if (!els.sidebarNavMenu) return;
+
+    const links = els.sidebarNavMenu.querySelectorAll('a.nav-link[data-route]');
+    links.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const target = link.getAttribute('target') || '_self';
+        const route = link.dataset.route;
+
+        if (target && target !== '_self') {
+          return;
+        }
+
+        event.preventDefault();
+        window.location.hash = `#${route}`;
+      });
+    });
+  }
+
+  function renderSidebarMenu() {
+    if (!els.sidebarNavMenu) return;
+    if (!state.sidebarMenuCache) return;
+
+    const currentPageKey = getCurrentPageKey();
+    const tree = buildSidebarTree(state.sidebarMenuCache);
+    els.sidebarNavMenu.innerHTML = renderSidebarMenuItems(tree, currentPageKey);
+
+    bindSidebarGroupToggles();
+    bindDynamicNavLinks();
+  }
+
+  async function loadAndRenderSidebarMenu(forceReload = false) {
+    if (!els.sidebarNavMenu) return;
+
+    if (els.sidebarMenuLoading) {
+      els.sidebarMenuLoading.classList.remove('d-none');
     }
 
     try {
-      const token = getToken();
-
-      if (token && API_BASE_URL !== 'YOUR_API_BASE_URL_HERE') {
-        await fetch(`${API_BASE_URL}/logout`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }).catch(() => {});
+      if (!state.sidebarMenuLoaded || forceReload) {
+        state.sidebarMenuCache = await fetchSidebarMenu();
+        state.sidebarMenuLoaded = true;
       }
+
+      renderSidebarMenu();
+    } catch (error) {
+      console.error(error);
+      els.sidebarNavMenu.innerHTML = `
+        <li class="nav-item">
+          <span class="nav-link text-danger">خطا در بارگذاری منوی سایدبار</span>
+        </li>
+      `;
     } finally {
-      clearAuth();
-      redirectToLogin();
-    }
-  }
-
-  function handleNavClick(link, event) {
-    const page = link.getAttribute('data-page') || link.getAttribute('data-route');
-
-    if (!page || !pages[page]) {
-      return;
-    }
-
-    event.preventDefault();
-
-    if (window.location.hash.replace('#', '') === page) {
-      handleRouteChange();
-    } else {
-      window.location.hash = page;
-    }
-
-    if (isMobileView()) {
-      closeSidebar();
-    }
-  }
-
-  function bindLayoutEvents() {
-    if (eventsBound) return;
-
-    if (layout.menuToggle) {
-      layout.menuToggle.addEventListener('click', handleSidebarToggleAction);
-    }
-
-    if (layout.sidebarToggleBtn) {
-      layout.sidebarToggleBtn.addEventListener('click', handleSidebarToggleAction);
-    }
-
-    if (layout.sidebarOverlay) {
-      layout.sidebarOverlay.addEventListener('click', closeSidebar);
-    }
-
-    document.addEventListener('click', (event) => {
-      if (!layout.sidebar) return;
-
-      if (isMobileView()) {
-        const isOpen = layout.sidebar.classList.contains('show');
-
-        if (
-          isOpen &&
-          !layout.sidebar.contains(event.target) &&
-          !(
-            (layout.menuToggle && layout.menuToggle.contains(event.target)) ||
-            (layout.sidebarToggleBtn && layout.sidebarToggleBtn.contains(event.target))
-          )
-        ) {
-          closeSidebar();
-        }
-
-        return;
+      if (els.sidebarMenuLoading) {
+        els.sidebarMenuLoading.classList.add('d-none');
       }
-
-      if (
-        isDesktopMini() &&
-        document.body.classList.contains('sidebar-hover-expanded') &&
-        !layout.sidebar.contains(event.target)
-      ) {
-        document.body.classList.remove('sidebar-hover-expanded');
-      }
-    });
-
-    layout.logoutBtns.forEach((btn) => {
-      btn.addEventListener('click', handleLogout);
-    });
-
-    layout.navLinks.forEach((link) => {
-      link.addEventListener('click', (event) => handleNavClick(link, event));
-    });
-
-    window.addEventListener('resize', ensureDesktopSidebarState);
-    window.addEventListener('hashchange', handleRouteChange);
-
-    bindSidebarHoverEvents();
-
-    eventsBound = true;
+    }
   }
 
   async function initializeLayout() {
-    if (isLayoutInitialized) {
+    if (state.layoutInitialized) {
       return;
     }
 
-    await Promise.all([
-      loadLayoutPart('#headerMount', 'components/header.html'),
-      loadLayoutPart('#sidebarMount', 'components/sidebar.html')
+    const appShell = qs('#appShell');
+    if (!appShell) {
+      throw new Error('#appShell not found.');
+    }
+
+    const [topbarHtml, sidebarHtml] = await Promise.all([
+      fetchHtml('components/topbar.html'),
+      fetchHtml('components/sidebar.html')
     ]);
 
-    cacheLayoutElements();
-    updateHeaderUser();
-    bindLayoutEvents();
+    appShell.innerHTML = `
+      <div id="layoutWrapper">
+        <div id="topbarContainer">${topbarHtml}</div>
+        <div class="layout-body d-flex">
+          <aside id="sidebarContainer">${sidebarHtml}</aside>
+          <main class="flex-grow-1 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h1 id="pageTitle" class="h4 m-0"></h1>
+            </div>
+            <div id="pageContent"></div>
+          </main>
+        </div>
+      </div>
+    `;
 
-    isLayoutInitialized = true;
+    els.appShell = appShell;
+    els.topbar = qs('#topbarContainer');
+    els.sidebar = qs('#sidebarContainer');
+    els.pageTitle = qs('#pageTitle');
+    els.pageContent = qs('#pageContent');
+    els.sidebarNavMenu = qs('#sidebarNavMenu');
+    els.sidebarMenuLoading = qs('#sidebarMenuLoading');
+
+    state.layoutInitialized = true;
+
+    window.loadAndRenderSidebarMenu = loadAndRenderSidebarMenu;
+
+    await loadAndRenderSidebarMenu();
   }
 
   async function loadPage(pageKey) {
-    const pagePath = pages[pageKey];
+    const route = routes[pageKey] || routes.dashboard;
 
-    if (!pagePath) {
-      showError('صفحه مورد نظر پیدا نشد.');
-      return;
+    if (!els.pageContent || !els.pageTitle) {
+      throw new Error('Layout elements are not initialized.');
     }
 
-    showLoading();
+    els.pageTitle.textContent = route.title;
+    els.pageContent.innerHTML = '<div class="text-center py-5">در حال بارگذاری...</div>';
 
     try {
-      const response = await fetch(pagePath, { cache: 'no-store' });
+      const html = await fetchHtml(route.path);
+      els.pageContent.innerHTML = html;
 
-      if (!response.ok) {
-        throw new Error(`Failed to load page: ${pagePath}`);
-      }
-
-      layout.spaContainer.innerHTML = await response.text();
-      setActiveMenu(pageKey);
+      await ensurePageScript(pageKey);
 
       if (typeof window.initializePage === 'function') {
-        try {
-          window.initializePage(pageKey);
-        } catch (error) {
-          console.error('Page initialization error:', error);
-        }
+        await window.initializePage(pageKey);
       }
+
+      state.currentPageKey = pageKey;
     } catch (error) {
       console.error(error);
-      showError('خطا در بارگذاری صفحه. لطفاً دوباره تلاش کنید.');
+      els.pageContent.innerHTML = `
+        <div class="alert alert-danger">
+          خطا در بارگذاری صفحه.
+        </div>
+      `;
     }
   }
 
   async function handleRouteChange() {
-    if (isRouteLoading) {
-      return;
-    }
-
-    isRouteLoading = true;
-
-    try {
-      const token = getToken();
-
-      if (!token) {
-        clearAuth();
-        redirectToLogin();
-        return;
-      }
-
-      const pageKey = getCurrentPageKey();
-      await loadPage(pageKey);
-    } finally {
-      isRouteLoading = false;
-    }
-  }
-
-  function enforceAuth() {
-    const token = getToken();
-
-    if (!token) {
-      clearAuth();
-      redirectToLogin();
-      return false;
-    }
-
-    return true;
+    const pageKey = getCurrentPageKey();
+    await loadPage(pageKey);
+    renderSidebarMenu();
   }
 
   async function bootstrap() {
-    if (isPublicPage()) {
-      return;
-    }
-
-    if (!enforceAuth()) return;
-
     try {
       await initializeLayout();
-      ensureDesktopSidebarState();
       await handleRouteChange();
+      window.addEventListener('hashchange', handleRouteChange);
     } catch (error) {
-      console.error('Bootstrap error:', error);
-      showError('خطا در بارگذاری قالب اصلی.');
+      console.error(error);
+      const appShell = qs('#appShell');
+      if (appShell) {
+        appShell.innerHTML = `
+          <div class="container py-5">
+            <div class="alert alert-danger">
+              خطا در راه‌اندازی لایه اصلی برنامه.
+            </div>
+          </div>
+        `;
+      }
     }
   }
 
-  document.addEventListener('DOMContentLoaded', bootstrap);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+  } else {
+    bootstrap();
+  }
 })();
