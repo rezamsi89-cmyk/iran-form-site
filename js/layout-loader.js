@@ -14,6 +14,37 @@
     "settings-sidebar-menu": "pages/settings-sidebar-menu.html",
   };
 
+  const pageMeta = {
+    dashboard: {
+      title: "داشبورد",
+      subtitle: "نمای کلی سامانه",
+    },
+    user_management: {
+      title: "مدیریت کاربران",
+      subtitle: "مشاهده و مدیریت کاربران سامانه",
+    },
+    profile: {
+      title: "پروفایل",
+      subtitle: "اطلاعات حساب کاربری",
+    },
+    files: {
+      title: "فایل‌ها",
+      subtitle: "مدیریت فایل‌های سامانه",
+    },
+    reports: {
+      title: "گزارش‌ها",
+      subtitle: "گزارش‌های مدیریتی",
+    },
+    settings: {
+      title: "تنظیمات",
+      subtitle: "پیکربندی سامانه",
+    },
+    "settings-sidebar-menu": {
+      title: "تنظیمات منوی سایدبار",
+      subtitle: "مدیریت آیتم‌ها و زیرمنوهای سایدبار",
+    },
+  };
+
   let layout = {
     headerMount: null,
     sidebarMount: null,
@@ -102,7 +133,7 @@
     if (!layout.spaContainer) return;
     layout.spaContainer.innerHTML = `
       <div class="alert alert-danger m-3" role="alert">
-        ${message}
+        ${escapeHtml(message)}
       </div>
     `;
   }
@@ -114,10 +145,24 @@
     });
   }
 
+  function updatePageMeta(pageKey) {
+    const meta = pageMeta[pageKey] || pageMeta.dashboard;
+    const titleEl = qs("[data-page-title]");
+    const subtitleEl = qs("[data-page-subtitle]");
+
+    if (titleEl) {
+      titleEl.textContent = meta.title;
+    }
+
+    if (subtitleEl) {
+      subtitleEl.textContent = meta.subtitle;
+    }
+  }
+
   function cacheLayoutElements() {
-    layout.headerMount = qs("#headerMount");
-    layout.sidebarMount = qs("#sidebarMount");
-    layout.spaContainer = qs("#spaContainer");
+    layout.headerMount = qs("#header-container");
+    layout.sidebarMount = qs("#sidebar-container");
+    layout.spaContainer = qs("#page-container");
     layout.sidebar = qs("#appSidebar");
     layout.sidebarOverlay = qs("#sidebarOverlay");
     layout.menuToggle = qs("#menuToggle");
@@ -326,6 +371,7 @@
 
       layout.spaContainer.innerHTML = await response.text();
       setActiveMenu(pageKey);
+      updatePageMeta(pageKey);
 
       if (typeof window.initializePage === "function") {
         try {
@@ -363,8 +409,8 @@
 
   async function initializeLayout() {
     await Promise.all([
-      loadLayoutPart("#headerMount", "components/header.html"),
-      loadLayoutPart("#sidebarMount", "components/sidebar.html"),
+      loadLayoutPart("#header-container", "components/header.html"),
+      loadLayoutPart("#sidebar-container", "components/sidebar.html"),
     ]);
 
     cacheLayoutElements();
@@ -380,6 +426,7 @@
     try {
       await initializeLayout();
       ensureDesktopSidebarState();
+      updatePageMeta(getCurrentPageKey());
       await handleRouteChange();
     } catch (error) {
       console.error("Bootstrap error:", error);
