@@ -52,7 +52,7 @@
     sidebar: null,
     sidebarOverlay: null,
     menuToggle: null,
-    logoutBtn: null,
+    logoutButtons: [],
     navLinks: [],
   };
 
@@ -64,7 +64,6 @@
     return Array.from(parent.querySelectorAll(selector));
   }
 
-  // تابع کمکی برای پیدا کردن اولین المان موجود از بین چند سلکتور قدیمی و جدید
   function getFirstElement(selectors) {
     for (const selector of selectors) {
       const element = qs(selector);
@@ -190,10 +189,10 @@
     layout.headerMount = getFirstElement(["#header-container", "#headerMount"]);
     layout.sidebarMount = getFirstElement(["#sidebar-container", "#sidebarMount"]);
     layout.spaContainer = getFirstElement(["#page-container", "#spaContainer", "[data-page-container]"]);
-    layout.sidebar = qs("#appSidebar");
-    layout.sidebarOverlay = qs("#sidebarOverlay");
+    layout.sidebar = getFirstElement(["#appSidebar", "#sidebar"]);
+    layout.sidebarOverlay = getFirstElement(["#sidebarOverlay", ".sidebar-overlay"]);
     layout.menuToggle = qs("#menuToggle");
-    layout.logoutBtn = qs("#logoutBtn");
+    layout.logoutButtons = qsa("[data-action='logout'], #logoutBtn");
     layout.navLinks = qsa("[data-page]");
   }
 
@@ -243,7 +242,7 @@
 
     if (route === "logout") {
       return `
-        <a href="#logout" class="sidebar-link sidebar-logout-link" id="logoutBtn" data-route="logout">
+        <a href="#logout" class="sidebar-link sidebar-logout-link" data-action="logout" data-route="logout">
           <span class="sidebar-link-icon"><i class="${icon}"></i></span>
           <span class="sidebar-link-text">${title}</span>
         </a>
@@ -339,15 +338,15 @@
   }
 
   function bindSidebarMenuEvents() {
-    layout.logoutBtn = qs("#logoutBtn");
+    layout.logoutButtons = qsa("[data-action='logout'], #logoutBtn");
     layout.navLinks = qsa("[data-page]");
 
-    if (layout.logoutBtn) {
-      layout.logoutBtn.addEventListener("click", async (event) => {
+    layout.logoutButtons.forEach((button) => {
+      button.addEventListener("click", async (event) => {
         event.preventDefault();
         await handleLogout();
       });
-    }
+    });
 
     layout.navLinks.forEach((link) => {
       link.addEventListener("click", (event) => {
