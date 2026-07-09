@@ -4,7 +4,6 @@
   const API_BASE_URL = "https://iran-form-api.reza-msi89.workers.dev";
   const SIDEBAR_API_BASE_URL = "https://sidebar-menu-api.reza-msi89.workers.dev";
 
-  // Only ONE naming standard for mount points:
   const MOUNT_POINTS = {
     header: "#headerMount",
     sidebar: "#sidebarMount",
@@ -34,16 +33,15 @@
     },
   };
 
+  const DESKTOP_PINNED_KEY = "sidebarDesktopPinned";
+
   let layout = {
     headerMount: null,
     sidebarMount: null,
     spaContainer: null,
-
-    // widgets inside loaded components
     sidebar: null,
     sidebarOverlay: null,
     menuToggle: null,
-
     logoutButtons: [],
     navLinks: [],
   };
@@ -79,26 +77,148 @@
     return window.innerWidth < 992;
   }
 
+  function isDesktopPinned() {
+    return localStorage.getItem(DESKTOP_PINNED_KEY) === "true";
+  }
+
+  // [PATCH] sync state of hamburger/pin button with current mode
+  function syncMenuToggleState() {
+    if (!layout.menuToggle) return;
+
+    // In desktop: pinned=true means expanded (not mini)
+    const pinned = !isMobileView() && isDesktopPinned();
+
+    layout.menuToggle.classList.toggle("is-pinned", pinned);
+    layout.menuToggle.setAttribute("aria-pressed", pinned ? "true" : "false");
+    layout.menuToggle.setAttribute(
+      "aria-label",
+      pinned ? "باز کردن حالت مینی (Unpin)" : "پین کردن سایدبار (Pin)"
+    );
+  }
+
+  function setDesktopPinnedState(pinned) {
+    if (pinned) {
+      localStorage.setItem(DESKTOP_PINNED_KEY, "true");
+    } else {
+      localStorage.removeItem(DESKTOP_PINNED_KEY);
+    }
+
+    document.body.classList.toggle("sidebar-desktop-pinned", pinned);
+    document.body.classList.toggle("sidebar-desktop-expanded", pinned);
+    document.body.classList.toggle("sidebar-desktop-mini", !pinned);
+    document.body.classList.remove("sidebar-hover-expanded");
+
+    // [PATCH]
+    syncMenuToggleState();
+  }
+
+  function expandDesktopSidebarTemporarily() {
+    if (isMobileView() || isDesktopPinned()) return;
+    document.body.classList.add("sidebar-hover-expanded");
+  }
+
+  function collapseDesktopSidebarTemporarily() {
+    if (isMobileView() || isDesktopPinned()) return;
+    document.body.classList.remove("sidebar-hover-expanded");
+  }
+
+  function applyDesktopSidebarState() {
+    if (isMobileView()) {
+      document.body.classList.remove(
+        "sidebar-desktop-mini",
+        "sidebar-desktop-expanded",
+        "sidebar-desktop-pinned",
+        "sidebar-hover-expanded"
+      );
+      // [PATCH]
+      syncMenuToggleState();
+      return;
+    }
+
+    setDesktopPinnedState(isDesktopPinned());
+  }
+
   function openSidebar() {
-    if (layout.sidebar) layout.sidebar.classList.add("show");
-    if (layout.sidebarOverlay) layout.sidebarOverlay.classList.add("show");
-    document.body.classList.add("sidebar-open");
+    if (isMobileView()) {
+      if (layout.sidebar) layout.sidebar.classList.add("show");
+      if (layout.sidebarOverlay) layout.sidebarOverlay.classList.add("show");
+      document.body.classList.add("sidebar-open");
+      // [PATCH]
+      syncMenuToggleState();
+      return;
+    }
+
+    setDesktopPinnedState(true);
   }
 
   function closeSidebar() {
-    if (layout.sidebar) layout.sidebar.classList.remove("show");
-    if (layout.sidebarOverlay) layout.sidebarOverlay.classList.remove("show");
-    document.body.classList.remove("sidebar-open");
+    if (isMobileView()) {
+      if (layout.sidebar) layout.sidebar.classList.remove("show");
+      if (layout.sidebarOverlay) layout.sidebarOverlay.classList.remove("show");
+      document.body.classList.remove("sidebar-open");
+      // [PATCH]
+      syncMenuToggleState();
+      return;
+    }
+
+    setDesktopPinnedState(false);
   }
 
   function toggleSidebar() {
     if (!layout.sidebar) return;
-    layout.sidebar.classList.contains("show") ? closeSidebar() : openSidebar();
+
+    if (isMobileView()) {
+      layout.sidebar.classList.contains("show") ? closeSidebar() : openSidebar();
+      return;
+    }
+
+    setDesktopPinnedState(!isDesktopPinned());
   }
 
   function ensureDesktopSidebarState() {
-    // On desktop, sidebar should not be in overlay mode
-    if (!isMobileView()) closeSidebar();
+    if (isMobileView()) {
+      closeSidebar();
+      return;
+    }
+
+    if (layout.sidebar) layout.sidebar.classList.remove("show");
+    if (layout.sidebarOverlay) layout.sidebarOverlay.classList.remove("show");
+    document.body.classList.remove("sidebar-open");
+    applyDesktopSidebarState();
+
+    // [PATCH]
+    syncMenuToggleState();
+  }
+
+  // [PATCH] close on outside click (desktop pinned + mobile opened)
+  function handleDocumentClick(event) {
+    if (!layout.sidebar) return;
+
+    const clickedInsideSidebar = layout.sidebar.contains(event.target);
+    const clickedToggle = layout.menuToggle && layout.menuToggle.contains(event.target);
+
+    // Mobile: if sidebar is open and user clicks outside -> close
+    if (isMobileView()) {
+      const isOpen = layout.sidebar.classList.contains("show");
+      if (isOpen && !clickedInsideSidebar && !clickedToggle) {
+        closeSidebar();
+      }
+      return;
+    }
+
+    // Desktop: if pinned and click outside -> unpin
+    if (!isDesktopPinned()) return;
+
+    if (!clickedInsideSidebar && !clickedToggle) {
+      setDesktopPinnedState(false);
+    }
+  }
+
+  function bindDesktopHoverEvents() {
+    if (!layout.sidebar) return;
+
+    layout.sidebar.addEventListener("mouseenter", expandDesktopSidebarTemporarily);
+    layout.sidebar.addEventListener("mouseleave", collapseDesktopSidebarTemporarily);
   }
 
   function showLoading() {
@@ -144,17 +264,12 @@
   }
 
   function cacheLayoutElements() {
-    // Mount points (must exist in home.html)
     layout.headerMount = qs(MOUNT_POINTS.header);
     layout.sidebarMount = qs(MOUNT_POINTS.sidebar);
     layout.spaContainer = qs(MOUNT_POINTS.spa);
-
-    // Widgets inside loaded components
     layout.sidebar = qs("#appSidebar");
     layout.sidebarOverlay = qs("#sidebarOverlay, .sidebar-overlay");
     layout.menuToggle = qs("#menuToggle");
-
-    // Action elements
     layout.logoutButtons = qsa("[data-action='logout']");
     layout.navLinks = qsa("[data-page]");
   }
@@ -225,7 +340,6 @@
     const menuContainer = qs("#sidebarNavMenu");
     const loadingEl = qs("#sidebarMenuLoading");
 
-    // Sidebar component might not have this container in some pages/layouts
     if (!menuContainer) return;
 
     if (loadingEl) loadingEl.classList.remove("d-none");
@@ -253,12 +367,13 @@
 
       menuContainer.innerHTML = renderSidebarMenu(data.menu);
 
-      cacheLayoutElements(); // refresh references after inject
+      cacheLayoutElements();
       bindSidebarMenuEvents();
       setActiveMenu(getCurrentPageKey());
+      // [PATCH]
+      syncMenuToggleState();
     } catch (error) {
       console.error("Sidebar menu load error:", error);
-      // Non-fatal: keep UI usable
     } finally {
       if (loadingEl) loadingEl.classList.add("d-none");
     }
@@ -317,13 +432,22 @@
 
   function bindLayoutEvents() {
     if (layout.menuToggle) {
-      layout.menuToggle.addEventListener("click", toggleSidebar);
+      layout.menuToggle.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleSidebar();
+      });
+      // [PATCH] initial state
+      syncMenuToggleState();
     }
 
     if (layout.sidebarOverlay) {
       layout.sidebarOverlay.addEventListener("click", closeSidebar);
     }
 
+    bindDesktopHoverEvents();
+
+    document.addEventListener("click", handleDocumentClick);
     window.addEventListener("resize", ensureDesktopSidebarState);
     window.addEventListener("hashchange", handleRouteChange);
   }
@@ -384,7 +508,6 @@
   }
 
   async function initializeLayout() {
-    // Cache mount points first
     cacheLayoutElements();
 
     const missing = [];
@@ -408,10 +531,12 @@
 
     cacheLayoutElements();
     bindLayoutEvents();
+    applyDesktopSidebarState();
+    // [PATCH]
+    syncMenuToggleState();
     await loadAndRenderSidebarMenu();
   }
 
-  // expose for debugging / manual refresh
   window.loadAndRenderSidebarMenu = loadAndRenderSidebarMenu;
 
   async function bootstrap() {
