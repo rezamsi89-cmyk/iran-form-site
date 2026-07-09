@@ -64,6 +64,17 @@
     return Array.from(parent.querySelectorAll(selector));
   }
 
+  // تابع کمکی برای پیدا کردن اولین المان موجود از بین چند سلکتور قدیمی و جدید
+  function getFirstElement(selectors) {
+    for (const selector of selectors) {
+      const element = qs(selector);
+      if (element) {
+        return element;
+      }
+    }
+    return null;
+  }
+
   function getToken() {
     return localStorage.getItem("token");
   }
@@ -121,7 +132,9 @@
   }
 
   function showLoading() {
-    const container = layout.spaContainer || qs("#page-container") || qs("[data-page-container]");
+    const container =
+      layout.spaContainer ||
+      getFirstElement(["#page-container", "#spaContainer", "[data-page-container]"]);
     if (!container) return;
 
     container.innerHTML = `
@@ -132,7 +145,9 @@
   }
 
   function showError(message) {
-    const container = layout.spaContainer || qs("#page-container") || qs("[data-page-container]");
+    const container =
+      layout.spaContainer ||
+      getFirstElement(["#page-container", "#spaContainer", "[data-page-container]"]);
 
     const errorHtml = `
       <div class="alert alert-danger m-3" role="alert">
@@ -172,9 +187,9 @@
   }
 
   function cacheLayoutElements() {
-    layout.headerMount = qs("#header-container");
-    layout.sidebarMount = qs("#sidebar-container");
-    layout.spaContainer = qs("#page-container");
+    layout.headerMount = getFirstElement(["#header-container", "#headerMount"]);
+    layout.sidebarMount = getFirstElement(["#sidebar-container", "#sidebarMount"]);
+    layout.spaContainer = getFirstElement(["#page-container", "#spaContainer", "[data-page-container]"]);
     layout.sidebar = qs("#appSidebar");
     layout.sidebarOverlay = qs("#sidebarOverlay");
     layout.menuToggle = qs("#menuToggle");
@@ -182,10 +197,10 @@
     layout.navLinks = qsa("[data-page]");
   }
 
-  async function loadLayoutPart(selector, filePath) {
-    const target = qs(selector);
+  async function loadLayoutPartFlexible(selectors, filePath) {
+    const target = getFirstElement(selectors);
     if (!target) {
-      throw new Error(`Container not found: ${selector}`);
+      throw new Error(`Container not found: ${selectors.join(" or ")}`);
     }
 
     const response = await fetch(filePath, { cache: "no-store" });
@@ -386,7 +401,9 @@
         throw new Error(`Failed to load page: ${pagePath}`);
       }
 
-      layout.spaContainer = layout.spaContainer || qs("#page-container") || qs("[data-page-container]");
+      layout.spaContainer =
+        layout.spaContainer ||
+        getFirstElement(["#page-container", "#spaContainer", "[data-page-container]"]);
       if (!layout.spaContainer) {
         throw new Error("Page container not found.");
       }
@@ -434,9 +451,9 @@
 
     const missingContainers = [];
 
-    if (!layout.headerMount) missingContainers.push("#header-container");
-    if (!layout.sidebarMount) missingContainers.push("#sidebar-container");
-    if (!layout.spaContainer) missingContainers.push("#page-container");
+    if (!layout.headerMount) missingContainers.push("#header-container or #headerMount");
+    if (!layout.sidebarMount) missingContainers.push("#sidebar-container or #sidebarMount");
+    if (!layout.spaContainer) missingContainers.push("#page-container or #spaContainer");
 
     if (missingContainers.length) {
       console.error("Missing layout containers:", {
@@ -450,8 +467,8 @@
     }
 
     await Promise.all([
-      loadLayoutPart("#header-container", "components/header.html"),
-      loadLayoutPart("#sidebar-container", "components/sidebar.html"),
+      loadLayoutPartFlexible(["#header-container", "#headerMount"], "components/header.html"),
+      loadLayoutPartFlexible(["#sidebar-container", "#sidebarMount"], "components/sidebar.html"),
     ]);
 
     cacheLayoutElements();
