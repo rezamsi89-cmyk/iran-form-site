@@ -1762,3 +1762,27 @@ body.sidebar-open {
   font-weight: inherit !important;
   line-height: inherit !important;
 }
+
+/* --- Collapse/Expand Styles --- */
+/* زمانی که کلاس .collapsed روی گروه اصلی باشد، زیرمنو مخفی می‌شود */
+.sidebar-menu-group.collapsed .sidebar-submenu {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* افکت باز و بسته شدن نرم */
+.sidebar-menu-group .sidebar-submenu {
+    transition: max-height 0.3s ease-out, opacity 0.2s ease-in;
+    max-height: 500px; /* یا ارتفاعی بیشتر از حد انتظار زیرمنو */
+    opacity: 1;
+    overflow: hidden;
+}
+
+/* چرخش آیکن فلش (اگر دارید) */
+.sidebar-menu-group.collapsed .sidebar-group-arrow {
+    transform: rotate(-90deg);
+}
