@@ -1432,7 +1432,7 @@ body.sidebar-open {
     justify-content: center;
     width: 24px !important;
     min-width: 24px !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
   }
 
   /* 4) hover expanded: بازگشت حالت کامل */
