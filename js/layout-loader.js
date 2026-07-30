@@ -559,3 +559,26 @@
     bootstrap();
   }
 })();
+
+
+function initSidebarGroupsCollapse() {
+  const groupTitles = document.querySelectorAll('.sidebar-menu-group-title');
+
+  groupTitles.forEach((title) => {
+    // جلوگیری از ثبت چندباره listener (اگر layout چند بار لود شد)
+    if (title.dataset.collapseBound === "1") return;
+    title.dataset.collapseBound = "1";
+
+    title.addEventListener('click', () => {
+      const parentGroup = title.closest('.sidebar-menu-group');
+      if (!parentGroup) return;
+      parentGroup.classList.toggle('collapsed');
+    });
+  });
+}
+
+// اگر سایدبار استاتیک است:
+document.addEventListener('DOMContentLoaded', initSidebarGroupsCollapse);
+
+// اگر layout-loader سایدبار را بعداً inject می‌کند، این را هم بعد از inject صدا بزن:
+initSidebarGroupsCollapse();
