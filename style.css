@@ -1458,3 +1458,243 @@ body.sidebar-open {
 #sidebarOverlay {
   backdrop-filter: blur(1.5px);
 }
+
+
+/* =========================================================
+   NINJA PATCH - FINAL SIDEBAR INTEGRATION
+   Add this block to the END of your existing style.css
+   ========================================================= */
+
+/* ---------- General sidebar nav container ---------- */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* ---------- Sidebar links / groups ---------- */
+.sidebar-link,
+.sidebar-menu-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-height: 44px;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.22s ease;
+  cursor: pointer;
+}
+
+.sidebar-link-icon,
+.sidebar-menu-group-icon {
+  width: 22px;
+  min-width: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+}
+
+.sidebar-link-text,
+.sidebar-menu-group-text {
+  white-space: nowrap;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* ---------- Normal state ---------- */
+.sidebar-link {
+  color: #495057;
+  background: transparent;
+}
+
+.sidebar-link:hover {
+  color: #0d6efd;
+  background: rgba(13, 110, 253, 0.08);
+}
+
+/* ---------- Active state: closer to normal, softer ---------- */
+.sidebar-link.active {
+  color: #0d6efd;
+  background: rgba(13, 110, 253, 0.10);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.sidebar-link.active:hover {
+  color: #0b5ed7;
+  background: rgba(13, 110, 253, 0.14);
+}
+
+/* ---------- Group title ---------- */
+.sidebar-menu-group-title {
+  color: #6c757d;
+  font-weight: 600;
+  user-select: none;
+}
+
+/* ---------- Submenu indentation reduced ---------- */
+.sidebar-submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.2rem;
+  padding-right: 1rem;
+}
+
+.sidebar-submenu .sidebar-link {
+  min-height: 40px;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+}
+
+/* =========================================================
+   DESKTOP MINI SIDEBAR
+   Default on desktop when not pinned
+   ========================================================= */
+@media (min-width: 992px) {
+  body.sidebar-desktop-mini #appSidebar {
+    width: 84px !important;
+    min-width: 84px !important;
+    overflow: hidden;
+    transition: width 0.22s ease;
+  }
+
+  body.sidebar-desktop-expanded #appSidebar,
+  body.sidebar-desktop-pinned #appSidebar {
+    width: 280px !important;
+    min-width: 280px !important;
+    transition: width 0.22s ease;
+  }
+
+  /* Hide header text in mini mode */
+  body.sidebar-desktop-mini #appSidebar .sidebar-header h6 {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  /* Center icons in mini mode */
+  body.sidebar-desktop-mini #appSidebar .sidebar-link,
+  body.sidebar-desktop-mini #appSidebar .sidebar-menu-group-title {
+    justify-content: center;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+
+  body.sidebar-desktop-mini #appSidebar .sidebar-link-icon,
+  body.sidebar-desktop-mini #appSidebar .sidebar-menu-group-icon {
+    margin: 0;
+    width: 24px;
+    min-width: 24px;
+    font-size: 1.1rem;
+  }
+
+  body.sidebar-desktop-mini #appSidebar .sidebar-link-text,
+  body.sidebar-desktop-mini #appSidebar .sidebar-menu-group-text,
+  body.sidebar-desktop-mini #appSidebar .sidebar-submenu,
+  body.sidebar-desktop-mini #appSidebar .sidebar-header .mb-0 {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* Hover-expanded on desktop */
+  body.sidebar-desktop-mini.sidebar-hover-expanded #appSidebar {
+    width: 280px !important;
+    min-width: 280px !important;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12);
+    overflow: visible;
+    z-index: 1045;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #appSidebar .sidebar-link,
+  body.sidebar-desktop-mini.sidebar-hover-expanded #appSidebar .sidebar-menu-group-title {
+    justify-content: flex-start;
+    padding-right: 0.9rem;
+    padding-left: 0.9rem;
+  }
+
+  body.sidebar-desktop-mini.sidebar-hover-expanded #appSidebar .sidebar-link-text,
+  body.sidebar-desktop-mini.sidebar-hover-expanded #appSidebar .sidebar-menu-group-text,
+  body.sidebar-desktop-mini.sidebar-hover-expanded #appSidebar .sidebar-submenu,
+  body.sidebar-desktop-mini.sidebar-hover-expanded #appSidebar .sidebar-header h6 {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Content spacing with mini sidebar */
+  body.sidebar-desktop-mini .main-content,
+  body.sidebar-desktop-mini #spaContainer {
+    transition: all 0.22s ease;
+  }
+
+  body.sidebar-desktop-expanded .main-content,
+  body.sidebar-desktop-pinned .main-content,
+  body.sidebar-desktop-expanded #spaContainer,
+  body.sidebar-desktop-pinned #spaContainer {
+    transition: all 0.22s ease;
+  }
+}
+
+/* =========================================================
+   Mobile overlay support
+   ========================================================= */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 1040;
+}
+
+.sidebar-overlay.show,
+#sidebarOverlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* =========================================================
+   Header toggle button improvements
+   ========================================================= */
+.sidebar-toggle-btn {
+  border: none;
+  outline: none;
+  box-shadow: none !important;
+  border-radius: 12px;
+  padding: 0.2rem 0.45rem !important;
+  transition: all 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(13, 110, 253, 0.08);
+  color: #0d6efd !important;
+}
+
+.sidebar-toggle-btn.is-pinned {
+  background: rgba(13, 110, 253, 0.12);
+  color: #0d6efd !important;
+}
+
+/* =========================================================
+   Better sidebar scrolling area
+   ========================================================= */
+#appSidebar .overflow-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+
+#appSidebar .overflow-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+#appSidebar .overflow-auto::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 999px;
+}
+
+#appSidebar .overflow-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
