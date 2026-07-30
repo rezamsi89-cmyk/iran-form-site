@@ -1429,7 +1429,7 @@ body.sidebar-open {
   body.sidebar-desktop-mini .sidebar-menu-group-icon {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center !important;
     width: 24px !important;
     min-width: 24px !important;
     margin: 0 !important;
