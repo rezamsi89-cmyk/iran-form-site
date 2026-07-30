@@ -1494,7 +1494,7 @@ body.sidebar-open {
 }
 
 /* ---------- Sidebar links / groups ---------- */
-.sidebar-link {
+/*.sidebar-link {
   display: flex;
   align-items: center;
   gap: 0.875rem;
@@ -1505,7 +1505,7 @@ body.sidebar-open {
   transition: all 0.22s ease;
   cursor: pointer;
 }
-
+*/
 .sidebar-link-icon,
 .sidebar-menu-group-icon {
   width: 22px;
