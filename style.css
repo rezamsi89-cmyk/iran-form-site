@@ -1394,7 +1394,7 @@ body.sidebar-open {
 
 /* 2) کاهش تورفتگی زیرمنو */
 .sidebar-submenu .sidebar-link {
-  padding-right: 36px !important;
+  padding-right: 16px !important;
   padding-left: 12px !important;
 }
 
