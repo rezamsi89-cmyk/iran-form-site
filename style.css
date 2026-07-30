@@ -487,28 +487,48 @@ body.auth-body {
 .sidebar-menu-group-title {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 12px;
-  min-height: 44px;
-  padding: 8px 14px 4px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
   color: #98a1a8;
-  font-size: 0.78rem;
+  font-size: 0.92rem;
   font-weight: 700;
+  line-height: 1.2;
   white-space: nowrap;
+  text-align: right;
+  direction: rtl;
+  border-radius: 8px;
 }
+
 
 .sidebar-menu-group-icon {
   width: 24px;
   min-width: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   color: #a8b0b7;
   flex-shrink: 0;
+  font-size: 1.05rem;
 }
 
+
 .sidebar-menu-group-text {
+  display: block;
   min-width: 0;
+  flex: 0 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
+
 
 .sidebar-submenu {
   display: flex;
@@ -1474,8 +1494,7 @@ body.sidebar-open {
 }
 
 /* ---------- Sidebar links / groups ---------- */
-.sidebar-link,
-.sidebar-menu-group-title {
+.sidebar-link {
   display: flex;
   align-items: center;
   gap: 0.875rem;
@@ -1741,4 +1760,47 @@ body.sidebar-open {
   font-size: inherit !important;
   line-height: 1.5 !important;
   white-space: nowrap !important;
+}
+
+
+/* =========================================================
+   Fix: main menu groups with submenu align like main links
+   ========================================================= */
+#sidebarNavMenu .sidebar-menu-group-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  min-height: 48px !important;
+  padding: 10px 14px !important;
+  gap: 12px !important;
+  direction: rtl !important;
+  text-align: right !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  border-radius: 8px !important;
+}
+
+#sidebarNavMenu .sidebar-menu-group-title .sidebar-menu-group-icon {
+  width: 24px !important;
+  min-width: 24px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  font-size: 1.05rem !important;
+}
+
+#sidebarNavMenu .sidebar-menu-group-title .sidebar-menu-group-text {
+  display: block !important;
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
 }
