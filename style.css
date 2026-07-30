@@ -485,7 +485,6 @@ body.auth-body {
 }
 
 .sidebar-menu-group-title {
-  flex: 1 1 auto;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -987,6 +986,7 @@ body.sidebar-open {
 .sidebar-group-toggle[aria-expanded="true"] .sidebar-group-arrow,
 .sidebar-group-toggle:not(.collapsed) .sidebar-group-arrow {
   transform: rotate(180deg);
+  margin-right: auto;
 }
 
 #sidebarNavMenu .collapse {
